@@ -29,7 +29,7 @@ source "alicloud-ecs" "aliyun-test" {
   secret_key           = "${var.secret_key}"
   #source_image         = "centos_7_9_x64_20G_alibase_20230919.vhd"
   # 阿里云镜像版本会一直更新, 最好采用image_family而不是source_image
-  image_family          = "acs:centos_7_9_x64"
+  image_family = "acs:centos_7_9_x64"
   # 必须要设置外网IP,否则实例构建后无法通过ssh连接执行provisioner操作。
   associate_public_ip_address = "true"
   run_tags = {
@@ -37,7 +37,7 @@ source "alicloud-ecs" "aliyun-test" {
     "Managed by" = "Packer"
   }
 
-  ssh_username         = "root"
+  ssh_username = "root"
 }
 
 build {
