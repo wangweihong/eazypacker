@@ -9,6 +9,27 @@ packer {
   }
 }
 
+
+# 输入变量(input variable)
+# 可以通过命令行标志、环境便令或者特殊变量定义文件在运行时覆盖输入变量的值。但一旦packer运行，就无法修改输入变量值
+# 如`packer build -var="ami_prefix=test"来改变输入变量的默认值
+# https://developer.hashicorp.com/packer/docs/templates/hcl_templates/variables#assigning-values-to-input-variables
+variable "ami_prefix" {
+  # 变量类型
+  type = string
+  # 默认值
+  default = "learn-packer-linux-aws-redis"
+}
+
+# 局部变量(local variable)
+# 局部变量可以设置为任何值，包括其他输入变量或者局部变量
+# 当需要格式化常用值时，局部变量非常有用。
+# 与输入变量不同，不能覆盖局部变量的值。局部变量设置为在运行时计算的表达式。表达式可以引用输入变量、局部变量、数据源和 HCL 函数。
+locals {
+  timestamp = regex_replace(timestamp(), "[- TZ:]", "")
+}
+
+
 # source块配置会被build块调用特定的builder插件。
 # source块通过bulider和communicators来定义使用哪种虚拟化技术
 #    ,如何加载你想要定制的镜像，以及如何连接它。builders和communicator捆绑在一起并在source块中并排配置。
@@ -38,6 +59,7 @@ source "amazon-ebs" "ubuntu" {
 
 # 新增一个源
 source "amazon-ebs" "ubuntu-focal" {
+  # 通过输入变量以及局部变量来更改生成的镜像名
   ami_name      = "${var.ami_prefix}-focal-${local.timestamp}"
   instance_type = "t2.micro"
   region        = "us-west-2"
