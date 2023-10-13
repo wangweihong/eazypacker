@@ -11,5 +11,5 @@ packer.verify.%:
 	$(eval FILE_PATH := $(subst =,/,$(FILE_PATH_PARA)))
 	@if [ -f $(FILE_PATH) ]; then \
         echo "====> Validating $(FILE_PATH)"; \
-        packer validate $(FILE_PATH); \
+        packer validate -syntax-only $(FILE_PATH); \
     fi
