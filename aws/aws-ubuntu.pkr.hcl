@@ -36,12 +36,32 @@ source "amazon-ebs" "ubuntu" {
   ssh_username = "ubuntu"
 }
 
+# 新增一个源
+source "amazon-ebs" "ubuntu-focal" {
+  ami_name      = "${var.ami_prefix}-focal-${local.timestamp}"
+  instance_type = "t2.micro"
+  region        = "us-west-2"
+  source_ami_filter {
+    filters = {
+      name                = "ubuntu/images/*ubuntu-focal-20.04-amd64-server-*"
+      root-device-type    = "ebs"
+      virtualization-type = "hvm"
+    }
+    most_recent = true
+    owners      = ["099720109477"]
+  }
+  ssh_username = "ubuntu"
+}
+
 # build块定义Packer 在 EC2 实例启动后应对其执行的操作。
 build {
+  # 指定构建器的名字。可以通过`only`或者`except`来指定或忽略某些build的执行
   name = "learn-packer"
   # build块通过`source.amazon-ebs.ubuntu`引用了source块定义的AMI。
+  # 指定多个源可以并行构建
   sources = [
-    "source.amazon-ebs.ubuntu"
+    "source.amazon-ebs.ubuntu",
+    "source.amazon-ebs.ubuntu-focal"
   ]
 
   # 定义一个`shell`配置器
@@ -63,6 +83,20 @@ build {
   # 配置器可以定义多个
   provisioner "shell" {
     inline = ["echo This provisioner runs last"]
+  }
+
+  # 如果采用以下的方式每个后处理器都将从构建器输出的制品开始,而不是从先前声明的后处理器创建的制品开始
+  # 当镜像成功创建后，使用该镜像创建Vagrant box
+  # 见https://developer.hashicorp.com/packer/tutorials/aws-get-started/aws-get-started-post-processors-vagrant
+  #post-processor "vagrant" {}
+  # 当镜像创建成功后，压缩镜像
+  #post-processor "compress" {}
+
+  # 如果需要连续，即后一个后处理器从前一个后处理器生成的制品开始操作，则应采用以下语法
+  # 当镜像创建成功后，使用该镜像创建Vagrant box,并对Vagrant Box进行压缩。
+  post-processors {
+    post-processor "vagrant" {}
+    post-processor "compress" {}
   }
 }
 
