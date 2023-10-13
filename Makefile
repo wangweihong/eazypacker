@@ -4,9 +4,11 @@
 
 
 .PHONY: all
-all: 
+all: fmt lint
 
 include scripts/make-rules/common.mk # make sure include common.mk at the first include line
+include scripts/make-rules/tools.mk
+include scripts/make-rules/packer.mk
 
 # Usage
 
@@ -17,6 +19,19 @@ Options:
   V                Set to 1 enable verbose build. Default is 0.
 endef
 export USAGE_OPTIONS
+
+## format: format pkr.hcl and .pkrvars.hcl files.
+.PHONY: format
+format: tools.verify.packer
+	@echo "===========> Formatting codes"
+	@$(PACKER) fmt -recursive .
+
+
+
+## lint: Check syntax and styling of pkr sources.
+.PHONY: lint
+lint:
+	@$(MAKE) packer.verify
 
 ## help: Show this help info.
 # 这里会提取target上一行的\#\#注释并生成到Makefile help文档中
