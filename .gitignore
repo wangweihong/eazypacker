@@ -348,3 +348,5 @@ dist
 .note.md
 
 # config files, may contain sensitive information
+
+*packer_cache
