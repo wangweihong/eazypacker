@@ -17,5 +17,13 @@
 3. 安装插件`packer init .`
 4. 构建`packer build .`
 
+# 调试
+* 日志 `PACKER_LOG=1 packer build .`
+* 交互式 `PACKER_LOG=1 packer build -debug .`
+
 # 其他
 * 默认iso会下载到当前路径下packer_cache目录中。
+
+# 参考
+* https://medium.com/@maros.kukan/automating-golden-image-builds-with-packer-3b1c6010b467
+* [ubuntu 22.04的变化](https://imagineer.in/blog/packer-build-for-ubuntu-20-04/)
