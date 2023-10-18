@@ -8,8 +8,8 @@ packer {
 }
 
 //将时间戳转换成20200301时间格式
-locals{
-  timestamp = formatdate("YYYYMMDD",timestamp() )
+locals {
+  timestamp = formatdate("YYYYMMDD", timestamp())
 }
 
 variable "ami_prefix" {
@@ -42,7 +42,7 @@ variable "iso_urls" {
 }
 
 variable "output_dir" {
-  type = string
+  type    = string
   default = ""
 }
 
@@ -53,12 +53,12 @@ variable "iso_checksum" {
 }
 
 variable "user" {
-  type = string
+  type    = string
   default = "wwhvw"
 }
 
 variable "password" {
-  type = string
+  type    = string
   default = "wwhvw"
 }
 
@@ -83,7 +83,6 @@ source "vmware-iso" "ubuntu-16-04" {
     #   "net.ifnames=0 ",
     "auto-install/enable=true ",
     "debconf/priority=critical ",
-  #  "preseed/url=http://${var.httpip}:{{ .HTTPPort }}/preseed.cfg ",
     "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg ",
     "<enter>"
   ]
@@ -101,27 +100,27 @@ source "vmware-iso" "ubuntu-16-04" {
   headless     = false
   # 如果设置, packer将会启动并设置服务http_directory指定的目录且随机端口的http服务
   # builder可以通过类似于`wget http://{{ .HTTPIP }}:{{ .HTTPPort }}/foo/bar/preseed.cfg`来使用该目录
-  http_directory                 = "preseed"
+  http_directory = "preseed"
   # 安装系统后连接到虚拟机上的ssh账号,必须要preseed.cfg保持一致
-  ssh_username                   = "${var.user}"
-  ssh_password                   = "${var.password}"
-  ssh_port                       = 22
-  ssh_timeout                    = "3600s"
-  vnc_disable_password           = true
-  vnc_bind_address               = "127.0.0.1"
+  ssh_username         = "${var.user}"
+  ssh_password         = "${var.password}"
+  ssh_port             = 22
+  ssh_timeout          = "3600s"
+  vnc_disable_password = true
+  vnc_bind_address     = "127.0.0.1"
   # vmx 配置https://sanbarrow.com/vmx/vmx-network.html
   # 设置虚拟机启动时连接网卡
   vmx_data = {
-    "ethernet0.startConnected": "true",
+    "ethernet0.startConnected" : "true",
     "ethernet0.addressType" : "generated",
-    "ethernet0.virtualDev": "e1000"
-    "ethernet0.present": "TRUE"
+    "ethernet0.virtualDev" : "e1000"
+    "ethernet0.present" : "TRUE"
   }
   # 设置虚拟磁盘类型。0表示保存到同一个文件
   disk_type_id = 0
-//  vmx_remove_ethernet_interfaces = true
-  output_directory               = "${var.output_dir}builds/${source.name}-${source.type}-${var.disk_size}M-${local.timestamp}"
-  shutdown_command               = "echo ${var.password} | sudo -S shutdown -P now"
+  //  vmx_remove_ethernet_interfaces = true
+  output_directory = "${var.output_dir}builds/${source.name}-${source.type}-${local.timestamp}"
+  shutdown_command = "echo ${var.password} | sudo -S shutdown -P now"
 }
 
 build {
