@@ -118,8 +118,9 @@ source "vmware-iso" "ubuntu-16-04" {
   }
   # 设置虚拟磁盘类型。0表示保存到同一个文件
   disk_type_id = 0
-  //  vmx_remove_ethernet_interfaces = true
-  output_directory = "${var.output_dir}builds/${source.name}-${source.type}-${local.timestamp}"
+  # 安装完系统后删除网卡, 否则所有基于该镜像创建出来的虚拟机都会使用同样IP
+  vmx_remove_ethernet_interfaces = true
+  output_directory = "${var.output_dir}builds/${source.name}-${source.type}-${var.disk_size}M-${local.timestamp}"
   shutdown_command = "echo ${var.password} | sudo -S shutdown -P now"
 }
 
