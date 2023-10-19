@@ -34,11 +34,14 @@ locals {
 }
 
 
-source "vmware-vmx" "basic-example" {
+source "vmware-vmx" "ubuntu-16-04" {
   # 这里指定的是输出文件的名字
   vm_name = "${source.name}-${source.type}-${local.timestamp}"
   # 源镜像路径
   source_path = "${var.source_path}"
+  # 输出格式,默认为vmx.
+  # 注意如果是ova必须安装ovftool工具,且ovftool程序在系统PATH路径上
+  #format = "ova"
   # 是否采用连接克隆. 默认是完全克隆
   linked           = false
   ssh_username     = "${var.user}"
@@ -63,5 +66,13 @@ source "vmware-vmx" "basic-example" {
 }
 
 build {
-  sources = ["sources.vmware-vmx.basic-example"]
+  sources = ["sources.vmware-vmx.ubuntu-16-04"]
+  # 定义一个`shell`配置器
+  provisioner "shell" {
+    inline = [
+      "echo ${var.password} | sudo -S apt-get update",
+      "echo ${var.password} | sudo -S apt install -y git",
+    ]
+  }
 }
+
