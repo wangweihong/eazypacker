@@ -1,0 +1,26 @@
+#cloud-config
+autoinstall:
+  version: 1
+  identity:
+    hostname: vagrant
+    username: vagrant
+    # 加密后密码, 可以通过`mkpasswd --method=SHA-512`
+    password: '$6$rounds=4096$5CU3LEj/MQvbkfPb$LmKEF9pCfU8R.dA.GemgE/8GT6r9blge3grJvdsVTMFKyLEQwzEF3SGWqAzjawY/XHRpWj4fOiLBrRyxJhIRJ1'
+  # 安装过程早期执行
+  early-commands:
+    # otherwise packer tries to connect and exceed max attempts:
+    - systemctl stop ssh.service
+    - systemctl stop ssh.socket
+  ssh:
+    # 安装ssh服务器
+    install-server: yes
+    # 允许使用密码进行SSH访问
+    allow-pw: yes
+  # 安装的最后阶段执行  
+  late-commands:
+      # 修改网络配置文件,确保 DHCP 使用 MAC 地址标识
+      - 'sed -i "s/dhcp4: true/&\n      dhcp-identifier: mac/" /target/etc/netplan/00-installer-config.yaml'
+      # 添加一个sudoers 文件，允许用户"vagrant"执行sudo命令而不需要密码。
+      - echo 'vagrant ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/vagrant
+      # Enable hyper-v daemons only if using hyper-v virtualization
+      - if [ $(virt-what) == "hyperv" ]; then apt-get update && apt-get install -y hyperv-daemons linux-tools-$(uname -r) linux-cloud-tools-$(uname -r) linux-cloud-tools-common cifs-utils && systemctl enable hypervvssd && systemctl enable hypervkvpd && systemctl start hypervvssd && systemctl start hypervkvpd; fi

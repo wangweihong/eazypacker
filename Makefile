@@ -1,14 +1,14 @@
 # .DEFAULT_GOAL为makefile自带变量, 用于设置默认目标
 # https://www.gnu.org/software/make/manual/html_node/Special-Variables.html
-.DEFAULT_GOAL := all
+.DEFAULT_GOAL := help
 
 
 .PHONY: all
 all: fmt lint
 
-include scripts/make-rules/common.mk # make sure include common.mk at the first include line
-include scripts/make-rules/tools.mk
-include scripts/make-rules/packer.mk
+include make-rules/common.mk # make sure include common.mk at the first include line
+include make-rules/tools.mk
+include make-rules/packer.mk
 
 # Usage
 
@@ -25,7 +25,6 @@ export USAGE_OPTIONS
 format: tools.verify.packer
 	@echo "===========> Formatting codes"
 	@$(PACKER) fmt -recursive .
-
 
 
 ## lint: Check syntax and styling of pkr sources.

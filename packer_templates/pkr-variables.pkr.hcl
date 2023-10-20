@@ -1,0 +1,458 @@
+/* ----  通用变量 --------*/
+
+variable "os_name" {
+  type        = string
+  description = "OS Brand Name"
+}
+variable "os_version" {
+  type        = string
+  description = "OS version number"
+}
+variable "os_arch" {
+  type = string
+  validation {
+    condition     = var.os_arch == "x86_64" || var.os_arch == "aarch64"
+    error_message = "The OS architecture type should be either x86_64 or aarch64."
+  }
+  description = "OS architecture type, x86_64 or aarch64"
+}
+
+variable "http_proxy" {
+  type        = string
+  default     = env("http_proxy")
+  description = "Http proxy url to connect to the internet"
+}
+
+variable "https_proxy" {
+  type        = string
+  default     = env("https_proxy")
+  description = "Https proxy url to connect to the internet"
+}
+
+variable "no_proxy" {
+  type        = string
+  default     = env("no_proxy")
+  description = "No Proxy"
+}
+
+variable "sources_enabled" {
+  type = list(string)
+  default = [
+    //    "source.hyperv-iso.vm",
+    //    "source.parallels-iso.vm",
+    //    "source.qemu.vm",
+    //    "source.virtualbox-iso.vm",
+    "source.vmware-iso.vm",
+  ]
+  description = "从ISO中构建各种操作系统的黄金镜像"
+}
+
+variable "images_enabled" {
+  type = list(string)
+  default = [
+          "source.vmware-vmx.vm",
+  ]
+  description = "基于黄金镜像构建各种目的镜像"
+}
+
+variable "is_golden_image_build"{
+  type = bool
+  default = true
+  description = "是否从iso中构建黄金镜像。为否时,则基于黄金镜像构建其他镜像"
+}
+
+
+variable "is_windows" {
+  type        = bool
+  default     = false
+  description = "Determines to set setting for Windows or Linux"
+}
+
+variable "replace_app_source" {
+  type        = string
+  default     = env("replace_app_source")
+  description = "Whether replace app source. such  as apt/yum source"
+}
+
+variable "build_version_path" {
+  type        = string
+  default     = null
+  description = "用于记录构建操作系统镜像的代码版本号"
+}
+
+variable "vagrant_output_path" {
+  type        = string
+  default     = null
+  description = "vagrant output路径"
+}
+
+/*----------- 操作系统通用变量 -------------- */
+variable  "replace_updates_source" {
+  type = bool
+  default = false
+  description = "是否更新应用源"
+}
+
+/* ---------- Source块通用变量 ------------- */
+variable "boot_command" {
+  type        = list(string)
+  default     = null
+  description = "Commands to pass to gui session to initiate automated install"
+}
+variable "default_boot_wait" {
+  type    = string
+  default = null
+}
+variable "cd_files" {
+  type    = list(string)
+  default = null
+}
+variable "cpus" {
+  type    = number
+  default = 2
+}
+variable "communicator" {
+  type    = string
+  default = null
+}
+variable "disk_size" {
+  type    = number
+  default = 65536
+}
+variable "floppy_files" {
+  type    = list(string)
+  default = null
+}
+variable "headless" {
+  type        = bool
+  default     = false
+  description = "Start GUI window to interact with VM. 启用时，将在后台安装系统"
+}
+variable "http_directory" {
+  type    = string
+  default = null
+}
+variable "iso_checksum" {
+  type        = string
+  default     = null
+  description = "ISO download checksum"
+}
+
+variable "iso_url" {
+  type        = string
+  default     = null
+  description = "ISO download url"
+}
+
+variable "iso_urls" {
+  type        = list(string)
+  default     = null
+  description = "ISO download urls."
+
+  // 可以指定多个.
+  // 如先从本地路径iso/查找iso,如果不存在再去指定URL下载
+  //  default = [
+  //    "iso/ubuntu-16.04.4-server-amd64.iso",
+  //    "https://old-releases.ubuntu.com/releases/16.04.4/ubuntu-16.04-server-amd64.iso"
+  //  ]
+}
+
+variable "memory" {
+  type    = number
+  default = null
+}
+
+variable "shutdown_command" {
+  type    = string
+  default = null
+}
+variable "shutdown_timeout" {
+  type    = string
+  default = "15m"
+}
+
+variable "ssh_username" {
+  type    = string
+  default = "vagrant"
+  description="通过ssh连接系统的账号密码。如果是通过iso安装, 必须和预设账号密码保持一致"
+}
+
+variable "ssh_password" {
+  type    = string
+  default = "vagrant"
+}
+
+variable "ssh_port" {
+  type    = number
+  default = 22
+}
+variable "ssh_timeout" {
+  type    = string
+  default = "30m"
+}
+
+variable "winrm_username" {
+  type    = string
+  default = "vagrant"
+}
+
+variable "winrm_password" {
+  type    = string
+  default = "vagrant"
+  description="如果是通过iso安装, 必须和预设账号密码保持一致"
+}
+variable "winrm_timeout" {
+  type    = string
+  default = "60m"
+}
+
+variable "vm_name" {
+  type    = string
+  default = null
+  description=""
+}
+
+
+variable "output_directory" {
+  type    = string
+  default = null
+    description="镜像数据输出目录"
+}
+
+
+/* --------- Build块通用变量 -------------- */
+// 指定provisioner运行的脚本
+variable "scripts" {
+  type    = list(string)
+  default = null
+  description = "provisioner运行脚本"
+}
+
+variable "custom_image_scripts" {
+  type    = list(string)
+  default = null
+  description = "构建自定义镜像运行的脚本"
+}
+
+variable "gloden_image_scripts" {
+  type    = list(string)
+  default = null
+  description = "构建黄金镜像运行的脚本"
+}
+
+variable "custom_purpose"{
+  type = string 
+  default = null
+  description = "自定义构建目的"
+}
+
+/* -------- 插件特定变量 -------------- */
+/////////////////////// vmware-iso///////////////////
+variable "vmware_boot_wait" {
+  type    = string
+  default = null
+}
+
+variable "vmware_cdrom_adapter_type" {
+  type        = string
+  default     = "sata"
+  description = "CDROM adapter type.  Needs to be SATA (or non-SCSI) for ARM64 builds."
+}
+
+variable "vmware_disk_adapter_type" {
+  type        = string
+  default     = "sata"
+  description = "Disk adapter type.  Needs to be SATA (PVSCSI, or non-SCSI) for ARM64 builds."
+}
+
+variable "vmware_guest_os_type" {
+  type        = string
+  default     = null
+  description = "OS type for virtualization optimization"
+}
+
+variable "vmware_tools_upload_flavor" {
+  type    = string
+  default = null
+}
+
+variable "vmware_tools_upload_path" {
+  type    = string
+  default = null
+}
+
+variable "vmware_version" {
+  type    = number
+  default = 20
+}
+
+//
+variable "vmware_vmx_data" {
+  type = map(string)
+  default = {
+    //    "cpuid.coresPerSocket"    = "2"
+    //    "ethernet0.pciSlotNumber" = "32"
+    //    "svga.autodetect"         = true
+    //    "usb_xhci.present"        = true
+    // vwmware vmx必须设置该值。不然出现vmware dhcp无法识别mac地址的IP.
+    "ethernet0.connectionType" : "nat",
+       // 设置虚拟机启动时连接网卡
+    "ethernet0.startConnected" : "true",
+    "ethernet0.addressType" : "generated",
+    //"ethernet0.virtualDev" : "e1000"
+    "ethernet0.present" : "TRUE"
+      # 指定网卡编号为ens33
+    "ethernet0.pcislotnumber" : "33"
+  }
+  description = "vmx 配置.更多查阅:cttps://sanbarrow.com/vmx/vmx-network.html"
+}
+variable "vmware_vmx_remove_ethernet_interfaces" {
+  type    = bool
+  default = true
+  // 建议开启,否则所有镜像构建出来的网卡IP都一样
+  description ="是否在构建玩镜像后删除所有网卡"
+}
+variable "vmware_enable_usb" {
+  type    = bool
+  default = true
+}
+
+variable "vmware_network_adapter_type" {
+  type    = string
+  default = "e1000e"
+}
+
+variable "vmware_network" {
+  type    = string
+  default = "nat"
+}
+
+variable "vmware_disk_type_id" {
+  type        = number
+  default     = 0
+  description = "设置虚拟磁盘类型。0表示保存到同一个文件"
+}
+
+variable "vmware_vnc_bind_address" {
+  type    = string
+  default = "127.0.0.1"
+}
+
+variable "vmware_vnc_disable_password" {
+  type    = bool
+  default = false
+}
+
+/////////////////////// vmware-vmx////////////////
+variable "vmware_vmx_format" {
+  type    = string
+  default = "vmx"
+  // 注意如果是ova必须安装ovftool工具,且ovftool程序在系统PATH路径上
+  // format = "ova"
+  description = "输出格式"
+}
+
+variable "vmware_vmx_display_name" {
+  type    = string
+  default = null
+  // https://github.com/hashicorp/packer/issues/7026
+  description = "镜像实例名"
+}
+
+variable "vmware_vmx_source_path" {
+  type    = string
+  default = null
+  description= "源镜像路径"
+}
+
+variable "vmware_vmx_source_directory" {
+  type    = string
+  default = null
+  description= "源镜像路径目录"
+}
+
+variable "vmware_vmx_source_file_name" {
+  type    = string
+  default = null
+  description= "源镜像文件名"
+}
+
+variable "vmware_vmx_source_file_format" {
+  type    = string
+  default = "vmx"
+  description= "源镜像文件格式"
+}
+
+variable "vmware_vmx_linked" {
+  type    = bool
+  default = false
+  description= "是否采用链接克隆"
+}
+
+/////////////////////// alicloud-ecs////////////////
+variable "alicloud_access_key" {
+  type        = string
+  default     = env("alicloud_access_key")
+  description = "access key to acess to the alicloud"
+}
+
+variable "alicloud_secret_key" {
+  type        = string
+  default     = env("alicloud_secret_key")
+  description = "secret key to acess to the alicloud"
+}
+
+variable "alicloud_instance_type" {
+  type        = string
+  default     = "ecs.t5-lc1m1.small"
+  description = "阿里云构建镜像的实例规格"
+}
+
+variable "alicloud_internet_charge_type" {
+  type        = string
+  default     = "PayByTraffic"
+  description = "阿里云流量付费方式"
+}
+
+variable "alicloud_io_optimized" {
+  type        = bool
+  default     = false
+  description = "是否优化IO"
+}
+
+variable "alicloud_region" {
+  type        = string
+  default     = "cn-shenzhen"
+  description = "阿里云区域"
+}
+
+variable "alicloud_image_family" {
+  type        = string
+  default     = null
+  description = "指定构建镜像的基础镜像所属族,如acs:centos_7_9_x64"
+}
+
+variable "alicloud_source_image" {
+  type        = string
+  default     = null
+  //由于阿里云基础镜像每个月会更新,因此最好还是采用alicloud_image_family
+  description = "指定构建镜像的基础镜像,如centos_7_9_x64_20G_alibase_20230919.vhd"
+}
+
+variable "alicloud_vm_associate_public_ip_address" {
+  type        = bool
+  default     = null
+  description = "是否设置公网IP. 必须设置外网IP,否则实例构建后无法通过ssh连接执行provisioner操作"
+}
+
+variable "alicloud_run_tags" {
+  type        = map(string)
+  default     =  null
+  description = "镜像标签"
+}
+
+variable "alicloud_description" {
+  type        = string
+  default     =  null
+  description = "镜像描述"
+}
