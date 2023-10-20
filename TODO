@@ -1,0 +1,29 @@
+1. 拆开不同目的构建块
+2. 增加构建后的检测功能
+3. 单独为vagrant提供一个单独的构建块。或者找一个方法允许provionser通过某种方式控制运行
+4. 构建应用镜像，最好能够允许通过拼接的方式将不同应用的安装程序组合到同一个镜像
+    * gitlab runner
+    * github action self-hosted runner
+    * kubernetes 即开即用集群
+    * harbor镜像仓库
+    * gitlab集群
+    * iso http仓库(不用再从外部下载)
+    * golang编译环境、git环境
+    * prometheus
+    * 监控环境
+    * yapi环境
+
+5. 测试以下镜像
+    windows-10
+    windows-11
+    centos-7
+    centos-8
+    centos-9
+    ubuntu-20
+    ubuntu-22
+    ubuntu-23
+    debian
+    suse
+6. 一个即开即用的packer镜像！
+    * 安装插件
+    * 安装一些必备的工具。如
