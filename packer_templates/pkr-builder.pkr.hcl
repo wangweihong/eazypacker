@@ -8,7 +8,7 @@ packer {
   }
 }
 
-//////////////////////// 定义构建脚本//////////////////
+
 locals {
   build_version_path  = var.build_version_path == null ? "${path.root}/../.build_version" : var.build_version_path
   vagrant_output_path = var.output_directory == null ? "${path.root}/../builds" : var.output_directory
