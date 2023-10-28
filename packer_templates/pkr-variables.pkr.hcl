@@ -50,14 +50,14 @@ variable "sources_enabled" {
 variable "images_enabled" {
   type = list(string)
   default = [
-          "source.vmware-vmx.vm",
+    "source.vmware-vmx.vm",
   ]
   description = "基于黄金镜像构建各种目的镜像"
 }
 
-variable "is_golden_image_build"{
-  type = bool
-  default = true
+variable "is_golden_image_build" {
+  type        = bool
+  default     = true
   description = "是否从iso中构建黄金镜像。为否时,则基于黄金镜像构建其他镜像"
 }
 
@@ -87,9 +87,9 @@ variable "vagrant_output_path" {
 }
 
 /*----------- 操作系统通用变量 -------------- */
-variable  "replace_updates_source" {
-  type = bool
-  default = false
+variable "replace_updates_source" {
+  type        = bool
+  default     = false
   description = "是否更新应用源"
 }
 
@@ -172,9 +172,9 @@ variable "shutdown_timeout" {
 }
 
 variable "ssh_username" {
-  type    = string
-  default = "vagrant"
-  description="通过ssh连接系统的账号密码。如果是通过iso安装, 必须和预设账号密码保持一致"
+  type        = string
+  default     = "vagrant"
+  description = "通过ssh连接系统的账号密码。如果是通过iso安装, 必须和预设账号密码保持一致"
 }
 
 variable "ssh_password" {
@@ -197,9 +197,9 @@ variable "winrm_username" {
 }
 
 variable "winrm_password" {
-  type    = string
-  default = "vagrant"
-  description="如果是通过iso安装, 必须和预设账号密码保持一致"
+  type        = string
+  default     = "vagrant"
+  description = "如果是通过iso安装, 必须和预设账号密码保持一致"
 }
 variable "winrm_timeout" {
   type    = string
@@ -207,42 +207,42 @@ variable "winrm_timeout" {
 }
 
 variable "vm_name" {
-  type    = string
-  default = null
-  description=""
+  type        = string
+  default     = null
+  description = ""
 }
 
 
 variable "output_directory" {
-  type    = string
-  default = null
-    description="镜像数据输出目录"
+  type        = string
+  default     = null
+  description = "镜像数据输出目录"
 }
 
 
 /* --------- Build块通用变量 -------------- */
 // 指定provisioner运行的脚本
 variable "scripts" {
-  type    = list(string)
-  default = null
+  type        = list(string)
+  default     = null
   description = "provisioner运行脚本"
 }
 
 variable "custom_image_scripts" {
-  type    = list(string)
-  default = null
+  type        = list(string)
+  default     = null
   description = "构建自定义镜像运行的脚本"
 }
 
 variable "gloden_image_scripts" {
-  type    = list(string)
-  default = null
+  type        = list(string)
+  default     = null
   description = "构建黄金镜像运行的脚本"
 }
 
-variable "custom_purpose"{
-  type = string 
-  default = null
+variable "custom_purpose" {
+  type        = string
+  default     = null
   description = "自定义构建目的"
 }
 
@@ -296,12 +296,12 @@ variable "vmware_vmx_data" {
     //    "usb_xhci.present"        = true
     // vwmware vmx必须设置该值。不然出现vmware dhcp无法识别mac地址的IP.
     "ethernet0.connectionType" : "nat",
-       // 设置虚拟机启动时连接网卡
+    // 设置虚拟机启动时连接网卡
     "ethernet0.startConnected" : "true",
     "ethernet0.addressType" : "generated",
     //"ethernet0.virtualDev" : "e1000"
     "ethernet0.present" : "TRUE"
-      # 指定网卡编号为ens33
+    # 指定网卡编号为ens33
     "ethernet0.pcislotnumber" : "33"
   }
   description = "vmx 配置.更多查阅:cttps://sanbarrow.com/vmx/vmx-network.html"
@@ -310,7 +310,7 @@ variable "vmware_vmx_remove_ethernet_interfaces" {
   type    = bool
   default = true
   // 建议开启,否则所有镜像构建出来的网卡IP都一样
-  description ="是否在构建玩镜像后删除所有网卡"
+  description = "是否在构建玩镜像后删除所有网卡"
 }
 variable "vmware_enable_usb" {
   type    = bool
@@ -343,6 +343,12 @@ variable "vmware_vnc_disable_password" {
   default = false
 }
 
+variable "vmware_vmdk_name" {
+  type        = string
+  default     = null
+  description = "生成的磁盘镜像名.不设置则默认为disk"
+}
+
 /////////////////////// vmware-vmx////////////////
 variable "vmware_vmx_format" {
   type    = string
@@ -360,33 +366,33 @@ variable "vmware_vmx_display_name" {
 }
 
 variable "vmware_vmx_source_path" {
-  type    = string
-  default = null
-  description= "源镜像路径"
+  type        = string
+  default     = null
+  description = "源镜像路径"
 }
 
 variable "vmware_vmx_source_directory" {
-  type    = string
-  default = null
-  description= "源镜像路径目录"
+  type        = string
+  default     = null
+  description = "源镜像路径目录"
 }
 
 variable "vmware_vmx_source_file_name" {
-  type    = string
-  default = null
-  description= "源镜像文件名"
+  type        = string
+  default     = null
+  description = "源镜像文件名"
 }
 
 variable "vmware_vmx_source_file_format" {
-  type    = string
-  default = "vmx"
-  description= "源镜像文件格式"
+  type        = string
+  default     = "vmx"
+  description = "源镜像文件格式"
 }
 
 variable "vmware_vmx_linked" {
-  type    = bool
-  default = false
-  description= "是否采用链接克隆"
+  type        = bool
+  default     = false
+  description = "是否采用链接克隆"
 }
 
 /////////////////////// alicloud-ecs////////////////
@@ -433,8 +439,8 @@ variable "alicloud_image_family" {
 }
 
 variable "alicloud_source_image" {
-  type        = string
-  default     = null
+  type    = string
+  default = null
   //由于阿里云基础镜像每个月会更新,因此最好还是采用alicloud_image_family
   description = "指定构建镜像的基础镜像,如centos_7_9_x64_20G_alibase_20230919.vhd"
 }
@@ -447,12 +453,12 @@ variable "alicloud_vm_associate_public_ip_address" {
 
 variable "alicloud_run_tags" {
   type        = map(string)
-  default     =  null
+  default     = null
   description = "镜像标签"
 }
 
 variable "alicloud_description" {
   type        = string
-  default     =  null
+  default     = null
   description = "镜像描述"
 }

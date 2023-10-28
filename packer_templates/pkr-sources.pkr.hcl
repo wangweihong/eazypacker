@@ -1,6 +1,6 @@
 locals {
 
-  /* ----------- vmware -----------*/
+  /* ----------- vmware通用变量 -----------*/
   vmware_tools_upload_flavor = var.vmware_tools_upload_flavor == null ? (
     var.is_windows ? "windows" : "linux"
   ) : var.vmware_tools_upload_flavor
@@ -10,12 +10,13 @@ locals {
   vmware_vmx_display_name = var.vmware_vmx_display_name == null ? (
     var.os_arch == "x86_64" ? "vmx-${var.os_name}-${var.os_version}-amd64" : "vmx-${var.os_name}-${var.os_version}-${var.os_arch}"
   ) : var.vmware_vmx_display_name
+  vmware_vmdk_name = var.vmware_vmdk_name == null ? local.vm_name : var.vmware_vmdk_name
   /*------------ vmware-vmx ----------*/
   //可以直接设置镜像路径，或者设置镜像目录和镜像名拼接成路径
   vmware_vmx_source_file_format = var.vmware_vmx_source_file_format == null ? "vmx" : var.vmware_vmx_source_file_format
-  vmware_vmx_source_directory = var.vmware_vmx_source_directory == null ? "${local.output_directory}-vmware-iso" : var.vmware_vmx_source_directory
-  vmware_vmx_source_file_name = var.vmware_vmx_source_file_name == null ? "${local.vm_name}" : var.vmware_vmx_source_file_name
-  vmware_vmx_source_path      = var.vmware_vmx_source_path == null ? "${local.vmware_vmx_source_directory}/${local.vmware_vmx_source_file_name}.${local.vmware_vmx_source_file_format}" : var.vmware_vmx_source
+  vmware_vmx_source_directory   = var.vmware_vmx_source_directory == null ? "${local.output_directory}-vmware-iso" : var.vmware_vmx_source_directory
+  vmware_vmx_source_file_name   = var.vmware_vmx_source_file_name == null ? "${local.vm_name}" : var.vmware_vmx_source_file_name
+  vmware_vmx_source_path        = var.vmware_vmx_source_path == null ? "${local.vmware_vmx_source_directory}/${local.vmware_vmx_source_file_name}.${local.vmware_vmx_source_file_format}" : var.vmware_vmx_source
   /* --------- Source块 ------------*/
   default_boot_wait = var.default_boot_wait == null ? (
     var.is_windows ? "60s" : "5s"
@@ -66,6 +67,7 @@ source "vmware-iso" "vm" {
   vmx_remove_ethernet_interfaces = var.vmware_vmx_remove_ethernet_interfaces
   vnc_disable_password           = var.vmware_vnc_disable_password
   vnc_bind_address               = var.vmware_vnc_bind_address
+  vmdk_name                      = local.vmware_vmdk_name
   /*----------- Source块通用参数 ---------- */
   boot_command     = var.boot_command
   boot_wait        = var.vmware_boot_wait == null ? local.default_boot_wait : var.vmware_boot_wait
@@ -103,6 +105,7 @@ source "vmware-vmx" "vm" {
   vnc_bind_address               = var.vmware_vnc_bind_address
   linked                         = var.vmware_vmx_linked
   source_path                    = local.vmware_vmx_source_path
+  vmdk_name                      = local.vmware_vmdk_name
   /*----------- Source块通用参数 ---------- */
 
   output_directory = "${local.output_directory}-${source.type}"
