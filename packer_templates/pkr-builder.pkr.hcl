@@ -88,9 +88,9 @@ build {
   //  }
 
   # Convert machines to vagrant boxes
-  // post-processor "vagrant" {
-  //   compression_level    = 9
-  //   output               = "${local.vagrant_output_path}/${var.os_name}-${var.os_version}-${var.os_arch}.{{ .Provider }}.box"
-  //   vagrantfile_template = var.is_windows ? "${path.root}/vagrantfile-windows.template" : null
-  // }
+  post-processor "vagrant" {
+    compression_level    = 9
+    output               = "${local.vagrant_output_path}/${var.os_name}-${var.os_version}-${var.os_arch}.{{ .Provider }}.box"
+    vagrantfile_template = var.is_windows ? "${path.root}/vagrantfile-windows.template" : null
+  }
 }
