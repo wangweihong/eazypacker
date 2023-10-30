@@ -149,8 +149,9 @@ variable "iso_urls" {
   default     = null
   description = "ISO download urls."
 
-  // 可以指定多个.
-  // 如先从本地路径iso/查找iso,如果不存在再去指定URL下载
+  // 可以指定多个. 如果值不是url,则从**当前路径下**/iso/去查找iso,如果不存在再去指定URL下载
+  // 特别注意, 指定的路径都是相对路径非绝对路径. 即使设置了"/f/build_cache/ubunut.iso"访问的也是当前路径下/f/build_cache/ 
+  // https://github.com/hashicorp/packer/issues/9050
   //  default = [
   //    "iso/ubuntu-16.04.4-server-amd64.iso",
   //    "https://old-releases.ubuntu.com/releases/16.04.4/ubuntu-16.04-server-amd64.iso"

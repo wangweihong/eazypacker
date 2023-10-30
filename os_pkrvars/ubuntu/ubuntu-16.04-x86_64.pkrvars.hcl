@@ -1,6 +1,7 @@
 os_name    = "ubuntu"
 os_version = "16.04"
 os_arch    = "x86_64"
+//iso_url = https://old-releases.ubuntu.com/releases/16.04.4/ubuntu-16.04-server-amd64.iso
 iso_urls = [
   "iso/ubuntu-16.04.4-server-amd64.iso",
   "https://old-releases.ubuntu.com/releases/16.04.4/ubuntu-16.04-server-amd64.iso"
