@@ -1,7 +1,7 @@
 
 /////////////////////// Provisioner脚本 ///////////////////////
 locals {
-  
+
   // 自定义镜像脚本
   custom_image_scripts = var.custom_image_scripts == null ? (
     var.custom_purpose == null ? [
