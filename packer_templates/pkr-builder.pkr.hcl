@@ -25,6 +25,11 @@ locals {
 
 # https://www.packer.io/docs/templates/hcl_templates/blocks/build
 build {
+  // TODO: 考虑将其他基于黄金镜像的特定用户镜像, 基于公有云的镜像等都创建一个构建块。
+  // 再利用[only/except](https://developer.hashicorp.com/packer/docs/templates/hcl_templates/onlyexcept)来单独构建
+  // 强调当前构建块目的是构建黄金镜像
+  name = "golden_image"
+
   sources = local.sources_enabled
 
   # Linux Shell scipts
