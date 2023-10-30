@@ -67,9 +67,11 @@ locals {
               //"${path.root}/scripts/${var.os_name}/replace_app_source.sh",
               // 更新/禁用系统软件
               "${path.root}/scripts/${var.os_name}/update_${var.os_name}.sh",
+              // 配置用户登录欢迎信息
+              "${path.root}/scripts/_common/motd.sh",
               // 配置sshd安全性
               "${path.root}/scripts/_common/sshd.sh",
-              //"${path.root}/scripts/${var.os_name}/net working_${var.os_name}.sh",
+              //"${path.root}/scripts/${var.os_name}/networking_${var.os_name}.sh",
               // 配置sudo用户权限
               "${path.root}/scripts/${var.os_name}/sudoers_${var.os_name}.sh",
               "${path.root}/scripts/${var.os_name}/systemd_${var.os_name}.sh",
@@ -100,16 +102,15 @@ locals {
                 "${var.os_name}-${substr(var.os_version, 0, 1)}" == "rhel-7" ||
                 "${var.os_name}-${substr(var.os_version, 0, 1)}" == "scientificlinux-7" ||
                 "${var.os_name}-${substr(var.os_version, 0, 1)}" == "springdalelinux-7" ? [
-                  //                  "${path.root}/scripts/rhel/update_yum.sh",
-                  //                  "${path.root}/scripts/_common/motd.sh",
-                  //                  "${path.root}/scripts/_common/sshd.sh",
+                  "${path.root}/scripts/rhel/update_yum.sh",
+                  "${path.root}/scripts/_common/motd.sh",
+                  "${path.root}/scripts/_common/sshd.sh",
                   //                  "${path.root}/scripts/rhel/networking_rhel7.sh",
                   //                  "${path.root}/scripts/_common/vagrant.sh",
-                  //                  "${path.root}/scripts/_common/virtualbox.sh",
-                  //                  "${path.root}/scripts/_common/vmware_rhel.sh",
-                  //                  "${path.root}/scripts/_common/parallels-rhel.sh",
-                  //                  "${path.root}/scripts/rhel/cleanup_yum.sh",
-                  //                  "${path.root}/scripts/_common/minimize.sh"
+                  "${path.root}/scripts/_common/virtualbox.sh",
+                  "${path.root}/scripts/_common/vmware_rhel.sh",
+                  "${path.root}/scripts/rhel/cleanup_yum.sh",
+                  "${path.root}/scripts/_common/minimize.sh"
                   ] : [
                   //                  "${path.root}/scripts/rhel/update_dnf.sh",
                   //                  "${path.root}/scripts/_common/motd.sh",
