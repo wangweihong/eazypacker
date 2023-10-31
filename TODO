@@ -12,3 +12,18 @@
     * prometheus
     * 监控环境
     * yapi环境
+
+5. 测试以下镜像
+    windows-10
+    windows-11
+    centos-7
+    centos-8
+    centos-9
+    ubuntu-20
+    ubuntu-22
+    ubuntu-23
+    debian
+    suse
+6. 一个即开即用的packer镜像！
+    * 安装插件
+    * 安装一些必备的工具。如
