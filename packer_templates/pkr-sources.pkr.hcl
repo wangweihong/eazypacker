@@ -68,6 +68,16 @@ source "vmware-iso" "vm" {
   vnc_disable_password           = var.vmware_vnc_disable_password
   vnc_bind_address               = var.vmware_vnc_bind_address
   vmdk_name                      = local.vmware_vmdk_name
+  cdrom_adapter_type             = var.vmware_cdrom_adapter_type 
+  disk_adapter_type              = var.vmware_disk_adapter_type   // 安装windows系统时必须设置这个值.
+  guest_os_type                  = var.vmware_guest_os_type
+  network                        = var.vmware_network
+  network_adapter_type           = var.vmware_network_adapter_type
+  usb                            = var.vmware_enable_usb
+  tools_upload_flavor            = local.vmware_tools_upload_flavor // windows这里貌似有bug,会阻塞在上传vmware-iso
+  tools_upload_path              = local.vmware_tools_upload_path
+  version                        = var.vmware_version
+
   /*----------- Source块通用参数 ---------- */
   boot_command     = var.boot_command
   boot_wait        = var.vmware_boot_wait == null ? local.default_boot_wait : var.vmware_boot_wait
@@ -75,6 +85,7 @@ source "vmware-iso" "vm" {
   memory           = local.memory
   disk_size        = var.disk_size
   headless         = var.headless
+
   cd_files         = local.cd_files
   floppy_files     = local.floppy_files
   iso_checksum     = var.iso_checksum

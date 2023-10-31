@@ -275,11 +275,14 @@ variable "vmware_guest_os_type" {
 variable "vmware_tools_upload_flavor" {
   type    = string
   default = null
+  description = "要上传到虚拟机上的vmawre tools的风格. 支持darwin,linux,windows. 默认为空, 即vmware tools不会上传."
 }
+
 
 variable "vmware_tools_upload_path" {
   type    = string
   default = null
+  description = "vmware tools上传到虚拟机内的路径。仅在vmware_tools_upload_flavor不为空时才生效"
 }
 
 variable "vmware_version" {
@@ -462,4 +465,33 @@ variable "alicloud_description" {
   type        = string
   default     = null
   description = "镜像描述"
+}
+
+/////////////////////////hyperv-iso//////////////////////////
+# Source block provider specific variables
+# hyperv-iso
+variable "hyperv_boot_wait" {
+  type    = string
+  default = null
+}
+variable "hyperv_enable_dynamic_memory" {
+  type    = bool
+  default = null
+}
+variable "hyperv_enable_secure_boot" {
+  type    = bool
+  default = null
+}
+variable "hyperv_generation" {
+  type        = number
+  default     = 2
+  description = "Hyper-v generation version"
+}
+variable "hyperv_guest_additions_mode" {
+  type    = string
+  default = "disable"
+}
+variable "hyperv_switch_name" {
+  type    = string
+  default = "eazypacker"
 }

@@ -14,19 +14,19 @@ locals {
   // 黄金镜像构建脚本
   gloden_image_scripts = var.gloden_image_scripts == null ? (
     var.is_windows ? [
-      //     "${path.root}/scripts/windows/provision.ps1",
-      //      "${path.root}/scripts/windows/configure-power.ps1",
-      //      "${path.root}/scripts/windows/disable-windows-uac.ps1",
-      //      "${path.root}/scripts/windows/disable-system-restore.ps1",
-      //      "${path.root}/scripts/windows/disable-screensaver.ps1",
-      //      "${path.root}/scripts/windows/ui-tweaks.ps1",
-      //      "${path.root}/scripts/windows/disable-windows-updates.ps1",
-      //      "${path.root}/scripts/windows/disable-windows-defender.ps1",
-      //      "${path.root}/scripts/windows/remove-one-drive-and-teams.ps1",
-      //      "${path.root}/scripts/windows/remove-apps.ps1",
-      //      "${path.root}/scripts/windows/enable-remote-desktop.ps1",
-      //      "${path.root}/scripts/windows/enable-file-sharing.ps1",
-      //      "${path.root}/scripts/windows/eject-media.ps1"
+      "${path.root}/scripts/windows/provision.ps1",
+      "${path.root}/scripts/windows/configure-power.ps1",
+      "${path.root}/scripts/windows/disable-windows-uac.ps1",
+      "${path.root}/scripts/windows/disable-system-restore.ps1",
+      "${path.root}/scripts/windows/disable-screensaver.ps1",
+      "${path.root}/scripts/windows/ui-tweaks.ps1",
+      "${path.root}/scripts/windows/disable-windows-updates.ps1",
+      "${path.root}/scripts/windows/disable-windows-defender.ps1",
+      "${path.root}/scripts/windows/remove-one-drive-and-teams.ps1",
+      "${path.root}/scripts/windows/remove-apps.ps1",
+      "${path.root}/scripts/windows/enable-remote-desktop.ps1",
+      "${path.root}/scripts/windows/enable-file-sharing.ps1",
+      "${path.root}/scripts/windows/eject-media.ps1"
       ] : (
       var.os_name == "solaris" ? [
         //        "${path.root}/scripts/solaris/update_solaris.sh",

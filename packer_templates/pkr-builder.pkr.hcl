@@ -5,7 +5,12 @@ packer {
       version = ">= 1.0.9"
       source  = "github.com/hashicorp/vmware"
     }
+    windows-update = {
+      version = ">= 0.14.1"
+      source  = "github.com/rgl/windows-update"
+    }
   }
+
 }
 
 
@@ -62,35 +67,35 @@ build {
   //   destination = "$HOME_DIR/.build_version"
   // }
 
-  //  # Windows Updates and scripts
-  //  provisioner "windows-update" {
-  //    search_criteria = "IsInstalled=0"
-  //    except          = var.is_windows ? null : local.source_names
-  //  }
-  //  provisioner "windows-restart" {
-  //    except = var.is_windows ? null : local.source_names
-  //  }
-  //  provisioner "powershell" {
-  //    elevated_password = "vagrant"
-  //    elevated_user     = "vagrant"
-  //    scripts           = local.scripts
-  //    except            = var.is_windows ? null : local.source_names
-  //  }
-  //  provisioner "windows-restart" {
-  //    except = var.is_windows ? null : local.source_names
-  //  }
-  //  provisioner "powershell" {
-  //    elevated_password = "vagrant"
-  //    elevated_user     = "vagrant"
-  //    scripts = [
-  //      "${path.root}/scripts/windows/cleanup.ps1",
-  //      "${path.root}/scripts/windows/optimize.ps1"
-  //    ]
-  //    except = var.is_windows ? null : local.source_names
-  //  }
-  //  provisioner "windows-restart" {
-  //    except = var.is_windows ? null : local.source_names
-  //  }
+  # Windows Updates and scripts
+  provisioner "windows-update" {
+    search_criteria = "IsInstalled=0"
+    except          = var.is_windows ? null : local.source_names
+  }
+  provisioner "windows-restart" {
+    except = var.is_windows ? null : local.source_names
+  }
+  provisioner "powershell" {
+    elevated_password = "vagrant"
+    elevated_user     = "vagrant"
+    scripts           = local.scripts
+    except            = var.is_windows ? null : local.source_names
+  }
+  provisioner "windows-restart" {
+    except = var.is_windows ? null : local.source_names
+  }
+  provisioner "powershell" {
+    elevated_password = "vagrant"
+    elevated_user     = "vagrant"
+    scripts = [
+      "${path.root}/scripts/windows/cleanup.ps1",
+      "${path.root}/scripts/windows/optimize.ps1"
+    ]
+    except = var.is_windows ? null : local.source_names
+  }
+  provisioner "windows-restart" {
+    except = var.is_windows ? null : local.source_names
+  }
 
   # Convert machines to vagrant boxes
   // post-processor "vagrant" {
