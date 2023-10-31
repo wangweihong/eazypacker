@@ -9,6 +9,10 @@ packer {
       version = ">= 0.14.1"
       source  = "github.com/rgl/windows-update"
     }
+    hyperv = {
+      version = ">= 1.0.1"
+      source  = "github.com/hashicorp/hyperv"
+    }
   }
 
 }

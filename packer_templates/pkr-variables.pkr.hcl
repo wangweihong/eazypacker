@@ -38,7 +38,7 @@ variable "no_proxy" {
 variable "sources_enabled" {
   type = list(string)
   default = [
-    //    "source.hyperv-iso.vm",
+    "source.hyperv-iso.vm",
     //    "source.parallels-iso.vm",
     //    "source.qemu.vm",
     //    "source.virtualbox-iso.vm",
@@ -273,15 +273,15 @@ variable "vmware_guest_os_type" {
 }
 
 variable "vmware_tools_upload_flavor" {
-  type    = string
-  default = null
+  type        = string
+  default     = null
   description = "要上传到虚拟机上的vmawre tools的风格. 支持darwin,linux,windows. 默认为空, 即vmware tools不会上传."
 }
 
 
 variable "vmware_tools_upload_path" {
-  type    = string
-  default = null
+  type        = string
+  default     = null
   description = "vmware tools上传到虚拟机内的路径。仅在vmware_tools_upload_flavor不为空时才生效"
 }
 
@@ -493,5 +493,6 @@ variable "hyperv_guest_additions_mode" {
 }
 variable "hyperv_switch_name" {
   type    = string
-  default = "eazypacker"
+  default = ""
+ // default = "eazypacker"
 }

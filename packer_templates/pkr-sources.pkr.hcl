@@ -1,4 +1,11 @@
 locals {
+  /* ----------- hyperv-iso ----------------------*/
+  hyperv_enable_dynamic_memory = var.hyperv_enable_dynamic_memory == null ? (
+    var.hyperv_generation == 2 && var.is_windows ? "true" : null
+  ) : var.hyperv_enable_dynamic_memory
+  hyperv_enable_secure_boot = var.hyperv_enable_secure_boot == null ? (
+    var.hyperv_generation == 2 && var.is_windows ? false : null
+  ) : var.hyperv_enable_secure_boot
 
   /* ----------- vmware通用变量 -----------*/
   vmware_tools_upload_flavor = var.vmware_tools_upload_flavor == null ? (
@@ -68,8 +75,8 @@ source "vmware-iso" "vm" {
   vnc_disable_password           = var.vmware_vnc_disable_password
   vnc_bind_address               = var.vmware_vnc_bind_address
   vmdk_name                      = local.vmware_vmdk_name
-  cdrom_adapter_type             = var.vmware_cdrom_adapter_type 
-  disk_adapter_type              = var.vmware_disk_adapter_type   // 安装windows系统时必须设置这个值.
+  cdrom_adapter_type             = var.vmware_cdrom_adapter_type
+  disk_adapter_type              = var.vmware_disk_adapter_type // 安装windows系统时必须设置这个值.
   guest_os_type                  = var.vmware_guest_os_type
   network                        = var.vmware_network
   network_adapter_type           = var.vmware_network_adapter_type
@@ -79,12 +86,12 @@ source "vmware-iso" "vm" {
   version                        = var.vmware_version
 
   /*----------- Source块通用参数 ---------- */
-  boot_command     = var.boot_command
-  boot_wait        = var.vmware_boot_wait == null ? local.default_boot_wait : var.vmware_boot_wait
-  cpus             = var.cpus
-  memory           = local.memory
-  disk_size        = var.disk_size
-  headless         = var.headless
+  boot_command = var.boot_command
+  boot_wait    = var.vmware_boot_wait == null ? local.default_boot_wait : var.vmware_boot_wait
+  cpus         = var.cpus
+  memory       = local.memory
+  disk_size    = var.disk_size
+  headless     = var.headless
 
   cd_files         = local.cd_files
   floppy_files     = local.floppy_files
@@ -96,6 +103,42 @@ source "vmware-iso" "vm" {
   shutdown_command = local.shutdown_command
   shutdown_timeout = var.shutdown_timeout
   communicator     = local.communicator
+  ssh_password     = var.ssh_password
+  ssh_port         = var.ssh_port
+  ssh_timeout      = var.ssh_timeout
+  ssh_username     = var.ssh_username
+  winrm_password   = var.winrm_password
+  winrm_timeout    = var.winrm_timeout
+  winrm_username   = var.winrm_username
+  vm_name          = local.vm_name
+}
+
+
+# https://www.packer.io/docs/templates/hcl_templates/blocks/source
+source "hyperv-iso" "vm" {
+  # Hyper-v specific options
+  enable_dynamic_memory = local.hyperv_enable_dynamic_memory
+  enable_secure_boot    = local.hyperv_enable_secure_boot
+  generation            = var.hyperv_generation
+  guest_additions_mode  = var.hyperv_guest_additions_mode
+  switch_name           = var.hyperv_switch_name
+  # Source block common options
+  boot_command     = var.boot_command
+  boot_wait        = var.hyperv_boot_wait == null ? local.default_boot_wait : var.hyperv_boot_wait
+  cd_files         = var.hyperv_generation == 2 ? local.cd_files : null
+  cpus             = var.cpus
+  communicator     = local.communicator
+  disk_size        = var.disk_size
+  floppy_files     = var.hyperv_generation == 2 ? null : local.floppy_files
+  headless         = var.headless
+  http_directory   = local.http_directory
+  iso_checksum     = var.iso_checksum
+  iso_urls         = var.iso_urls
+  iso_url          = var.iso_url
+  memory           = local.memory
+  output_directory = "${local.output_directory}-hyperv"
+  shutdown_command = local.shutdown_command
+  shutdown_timeout = var.shutdown_timeout
   ssh_password     = var.ssh_password
   ssh_port         = var.ssh_port
   ssh_timeout      = var.ssh_timeout
