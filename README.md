@@ -4,6 +4,14 @@
 * `make-rules`: makefile 构建规则
 * `os_pkrvars`: 各个操作系统特殊变量赋值
 * `packer_templates`: packer模板定义
+# 首次运行
+0.  由于插件都在github上,配置代理
+    ```
+        export HTTPS_PROXY=xxx
+        export HTTP_PROXY=xxx
+    ```
+1. 执行`packer init ./packer_templates`下载插件
+
 # 运行
 ## 构建vmware-iso的Ubuntu 16.04镜像
 `PACKER_CACHE_DIR=/f/build_cache packer build -only=*.vmware-iso.vm -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build ./packer_templates/`
