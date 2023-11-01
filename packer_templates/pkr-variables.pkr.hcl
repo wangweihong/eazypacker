@@ -288,6 +288,7 @@ variable "vmware_tools_upload_path" {
 variable "vmware_version" {
   type    = number
   default = 20
+  description = "用于指明当前构建的vmware workstation版本. 如果版本不匹配, 会直接报错."
 }
 
 //
@@ -493,6 +494,8 @@ variable "hyperv_guest_additions_mode" {
 }
 variable "hyperv_switch_name" {
   type    = string
-  default = ""
- // default = "eazypacker"
+  default = "Default Switch"
+  // 测试时不设置或者为null, 默认会创建一个`packer-vm`的内部网络虚拟交换机
+  // 会因为无法分配IP给虚拟机则创建失败
+  description = "创建的虚拟机连接的虚拟交换机"
 }
