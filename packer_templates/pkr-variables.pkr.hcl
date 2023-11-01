@@ -38,7 +38,9 @@ variable "no_proxy" {
 variable "sources_enabled" {
   type = list(string)
   default = [
-    "source.hyperv-iso.vm",
+    // FIXME: 在windows 10尝试安装ubuntu 16/20均无法无人值守安装. 而且一堆莫名其貌的问题, 找到解决方法不建议使用
+    // "source.hyperv-iso.vm",
+    // FIXMI: MAC的虚拟化, 无环境测试。先不使用
     //    "source.parallels-iso.vm",
     //    "source.qemu.vm",
     //    "source.virtualbox-iso.vm",
@@ -286,8 +288,8 @@ variable "vmware_tools_upload_path" {
 }
 
 variable "vmware_version" {
-  type    = number
-  default = 20
+  type        = number
+  default     = 20
   description = "用于指明当前构建的vmware workstation版本. 如果版本不匹配, 会直接报错."
 }
 
