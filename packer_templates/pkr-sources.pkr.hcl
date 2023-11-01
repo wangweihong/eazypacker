@@ -1,4 +1,31 @@
 locals {
+  /* ----------- virtualbox-iso ------------------*/
+  virtualbox_gfx_controller = var.virtualbox_gfx_controller == null ? (
+    var.is_windows ? "vboxsvga" : "vmsvga"
+  ) : var.virtualbox_gfx_controller
+  virtualbox_gfx_vram_size = var.virtualbox_gfx_controller == null ? (
+    var.is_windows ? 128 : 33
+  ) : var.virtualbox_gfx_vram_size
+  virtualbox_guest_additions_mode = var.virtualbox_guest_additions_mode == null ? (
+    var.is_windows ? "attach" : "upload"
+  ) : var.virtualbox_guest_additions_mode
+  /* ----------- qemu ----------------------------*/
+  # qemu
+  qemu_binary = var.qemu_binary == null ? "qemu-system-${var.os_arch}" : var.qemu_binary
+  qemu_machine_type = var.qemu_machine_type == null ? (
+    var.os_arch == "aarch64" ? "virt" : "q35"
+  ) : var.qemu_machine_type
+  qemuargs = var.qemuargs == null ? (
+    var.is_windows ? [
+      ["-drive", "file=${path.root}/win_answer_files/virtio-win.iso,media=cdrom,index=3"],
+      ["-drive", "file=${path.root}/../builds/packer-${var.os_name}-${var.os_version}-${var.os_arch}-qemu/{{ .Name }},if=virtio,cache=writeback,discard=ignore,format=qcow2,index=1"],
+      ] : (
+      var.os_arch == "aarch64" ? [
+        ["-boot", "strict=off"]
+      ] : null
+    )
+  ) : var.qemuargs
+
   /* ----------- hyperv-iso ----------------------*/
   hyperv_enable_dynamic_memory = var.hyperv_enable_dynamic_memory == null ? (
     var.hyperv_generation == 2 && var.is_windows ? "true" : null
@@ -7,6 +34,25 @@ locals {
     var.hyperv_generation == 2 && var.is_windows ? false : null
   ) : var.hyperv_enable_secure_boot
 
+  /* ----------- parallels-iso -----------*/
+  parallels_tools_flavor = var.parallels_tools_flavor == null ? (
+    var.is_windows ? (
+      var.os_arch == "x86_64" ? "win" : "win-arm"
+      ) : (
+      var.os_arch == "x86_64" ? "lin" : "lin-arm"
+    )
+  ) : var.parallels_tools_flavor
+  parallels_tools_mode = var.parallels_tools_mode == null ? (
+    var.is_windows ? "attach" : "upload"
+  ) : var.parallels_tools_mode
+  parallels_prlctl = var.parallels_prlctl == null ? (
+    var.is_windows ? [
+      ["set", "{{ .Name }}", "--efi-boot", "off"]
+      ] : [
+      ["set", "{{ .Name }}", "--3d-accelerate", "off"],
+      ["set", "{{ .Name }}", "--videosize", "16"]
+    ]
+  ) : var.parallels_prlctl
   /* ----------- vmware通用变量 -----------*/
   vmware_tools_upload_flavor = var.vmware_tools_upload_flavor == null ? (
     var.is_windows ? "windows" : "linux"
@@ -149,6 +195,113 @@ source "hyperv-iso" "vm" {
   vm_name          = local.vm_name
 }
 
+source "virtualbox-iso" "vm" {
+  # Virtualbox specific options
+  gfx_controller            = local.virtualbox_gfx_controller
+  gfx_vram_size             = local.virtualbox_gfx_vram_size
+  guest_additions_path      = var.virtualbox_guest_additions_path
+  guest_additions_mode      = local.virtualbox_guest_additions_mode
+  guest_additions_interface = var.virtualbox_guest_additions_interface
+  guest_os_type             = var.virtualbox_guest_os_type
+  hard_drive_interface      = var.virtualbox_hard_drive_interface
+  iso_interface             = var.virtualbox_iso_interface
+  vboxmanage                = var.virtualbox_manage
+  virtualbox_version_file   = var.virtualbox_version_file
+  # Source block common options
+  boot_command     = var.boot_command
+  boot_wait        = var.virtualbox_boot_wait == null ? local.default_boot_wait : var.virtualbox_boot_wait
+  cpus             = var.cpus
+  communicator     = local.communicator
+  disk_size        = var.disk_size
+  floppy_files     = local.floppy_files
+  headless         = var.headless
+  http_directory   = local.http_directory
+  iso_checksum     = var.iso_checksum
+  iso_url          = var.iso_url
+  iso_urls         = var.iso_urls
+  memory           = local.memory
+  output_directory = "${local.output_directory}-virtualbox"
+  shutdown_command = local.shutdown_command
+  shutdown_timeout = var.shutdown_timeout
+  ssh_password     = var.ssh_password
+  ssh_port         = var.ssh_port
+  ssh_timeout      = var.ssh_timeout
+  ssh_username     = var.ssh_username
+  winrm_password   = var.winrm_password
+  winrm_timeout    = var.winrm_timeout
+  winrm_username   = var.winrm_username
+  vm_name          = local.vm_name
+}
+
+source "parallels-iso" "vm" {
+  # Parallels specific options
+  guest_os_type          = var.parallels_guest_os_type
+  parallels_tools_flavor = local.parallels_tools_flavor
+  parallels_tools_mode   = local.parallels_tools_mode
+  prlctl                 = local.parallels_prlctl
+  prlctl_version_file    = var.parallels_prlctl_version_file
+  # Source block common options
+  boot_command     = var.boot_command
+  boot_wait        = var.parallels_boot_wait == null ? local.default_boot_wait : var.parallels_boot_wait
+  cpus             = var.cpus
+  communicator     = local.communicator
+  disk_size        = var.disk_size
+  floppy_files     = local.floppy_files
+  http_directory   = local.http_directory
+  iso_checksum     = var.iso_checksum
+  iso_url          = var.iso_url
+  iso_urls         = var.iso_urls
+  memory           = local.memory
+  output_directory = "${local.output_directory}-parallels"
+  shutdown_command = local.shutdown_command
+  shutdown_timeout = var.shutdown_timeout
+  ssh_password     = var.ssh_password
+  ssh_port         = var.ssh_port
+  ssh_timeout      = var.ssh_timeout
+  ssh_username     = var.ssh_username
+  winrm_password   = var.winrm_password
+  winrm_timeout    = var.winrm_timeout
+  winrm_username   = var.winrm_username
+  vm_name          = local.vm_name
+}
+
+source "qemu" "vm" {
+  # QEMU specific options
+  accelerator  = var.qemu_accelerator
+  display      = var.headless ? "none" : var.qemu_display
+  machine_type = local.qemu_machine_type
+  qemu_binary  = local.qemu_binary
+  qemuargs     = local.qemu_args
+  format       = var.qemu_format
+  disk_image   = var.qemu_disk_image
+  # Source block common options
+  boot_command     = var.boot_command
+  boot_wait        = var.qemu_boot_wait == null ? local.default_boot_wait : var.qemu_boot_wait
+  cd_files         = local.cd_files
+  cpus             = var.cpus
+  communicator     = local.communicator
+  disk_size        = var.disk_size
+  floppy_files     = local.floppy_files
+  headless         = var.headless
+  http_directory   = local.http_directory
+  iso_checksum     = var.iso_checksum
+  iso_url          = var.iso_url
+  iso_urls         = var.iso_urls
+  memory           = local.memory
+  output_directory = "${local.output_directory}-qemu"
+  shutdown_command = local.shutdown_command
+  shutdown_timeout = var.shutdown_timeout
+  ssh_password     = var.ssh_password
+  ssh_port         = var.ssh_port
+  ssh_timeout      = var.ssh_timeout
+  ssh_username     = var.ssh_username
+  winrm_password   = var.winrm_password
+  winrm_timeout    = var.winrm_timeout
+  winrm_username   = var.winrm_username
+  vm_name          = local.vm_name
+}
+
+///////////////////////////////////
 
 source "vmware-vmx" "vm" {
   /*------------- 插件特定选项 ------------ */

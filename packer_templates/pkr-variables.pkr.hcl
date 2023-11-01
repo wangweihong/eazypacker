@@ -38,12 +38,13 @@ variable "no_proxy" {
 variable "sources_enabled" {
   type = list(string)
   default = [
-    // FIXME: 在windows 10尝试安装ubuntu 16/20均无法无人值守安装. 而且一堆莫名其貌的问题, 找到解决方法不建议使用
+    // FIXME: 在windows 10尝试安装ubuntu 16/20均无法无人值守安装. 而且一堆奇怪的问题。先不启用
     // "source.hyperv-iso.vm",
-    // FIXMI: MAC的虚拟化, 无环境测试。先不使用
-    //    "source.parallels-iso.vm",
-    //    "source.qemu.vm",
-    //    "source.virtualbox-iso.vm",
+    // FIXME: MAC的虚拟化, 无环境测试。先不使用
+    // "source.parallels-iso.vm",
+    "source.qemu.vm",
+    // FIXME： 和hyperv一样问题不少，先不启用
+    // "source.virtualbox-iso.vm",
     "source.vmware-iso.vm",
   ]
   description = "从ISO中构建各种操作系统的黄金镜像"
@@ -500,4 +501,129 @@ variable "hyperv_switch_name" {
   // 测试时不设置或者为null, 默认会创建一个`packer-vm`的内部网络虚拟交换机
   // 会因为无法分配IP给虚拟机则创建失败
   description = "创建的虚拟机连接的虚拟交换机"
+}
+
+//////////////////////virtualbox-iso////////////////////////////////
+# virtualbox-iso
+variable "virtualbox_boot_wait" {
+  type    = string
+  default = null
+}
+variable "virtualbox_gfx_controller" {
+  type    = string
+  default = null
+}
+variable "virtualbox_gfx_vram_size" {
+  type    = number
+  default = null
+}
+variable "virtualbox_guest_additions_interface" {
+  type    = string
+  default = "sata"
+}
+variable "virtualbox_guest_additions_mode" {
+  type    = string
+  default = null
+}
+variable "virtualbox_guest_additions_path" {
+  type    = string
+  default = "VBoxGuestAdditions_{{ .Version }}.iso"
+}
+variable "virtualbox_guest_os_type" {
+  type        = string
+  default     = null
+  description = "OS type for virtualization optimization"
+}
+variable "virtualbox_hard_drive_interface" {
+  type    = string
+  default = "sata"
+}
+variable "virtualbox_iso_interface" {
+  type    = string
+  default = "sata"
+}
+variable "virtualbox_manage" {
+  type = list(list(string))
+  default = [
+    [
+      "modifyvm",
+      "{{.Name}}",
+      "--audio",
+      "none",
+      "--nat-localhostreachable1",
+      "on",
+    ]
+  ]
+}
+variable "virtualbox_version_file" {
+  type    = string
+  default = ".vbox_version"
+}
+
+
+////////////////// parallels-iso ////////////////////
+# parallels-iso
+variable "parallels_boot_wait" {
+  type    = string
+  default = null
+}
+variable "parallels_guest_os_type" {
+  type        = string
+  default     = null
+  description = "OS type for virtualization optimization"
+}
+variable "parallels_tools_flavor" {
+  type    = string
+  default = null
+}
+variable "parallels_tools_mode" {
+  type    = string
+  default = null
+}
+variable "parallels_prlctl" {
+  type    = list(list(string))
+  default = null
+}
+variable "parallels_prlctl_version_file" {
+  type    = string
+  default = ".prlctl_version"
+}
+
+////////////////// qemu ////////////////////
+# qemu
+variable "qemu_accelerator" {
+  type    = string
+  default = null
+}
+variable "qemu_binary" {
+  type    = string
+  default = null
+}
+variable "qemu_boot_wait" {
+  type    = string
+  default = null
+}
+variable "qemu_display" {
+  type    = string
+  default = "none"
+}
+variable "qemu_machine_type" {
+  type    = string
+  default = null
+}
+variable "qemu_args" {
+  type    = list(list(string))
+  default = null
+}
+
+variable "qemu_format" {
+  type = string 
+  default = null
+  description = "虚拟机镜像输出格式, 支持raw或者qcow2, 默认为qcow2."
+}
+
+variable "qemu_disk_image"{
+  type = bool
+  default = null
+  description = "是否从镜像(而非iso)来构建虚拟机镜像."
 }

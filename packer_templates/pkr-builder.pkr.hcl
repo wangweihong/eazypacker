@@ -13,6 +13,18 @@ packer {
       version = ">= 1.0.1"
       source  = "github.com/hashicorp/hyperv"
     }
+    virtualbox = {
+      version = ">= 0.0.1"
+      source  = "github.com/hashicorp/virtualbox"
+    }
+    parallels = {
+      version = ">= 1.0.2"
+      source  = "github.com/parallels/parallels"
+    }
+    qemu = {
+      version = ">= 1.0.8"
+      source  = "github.com/hashicorp/qemu"
+    }
   }
 
 }
