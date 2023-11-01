@@ -15,7 +15,7 @@ locals {
   qemu_machine_type = var.qemu_machine_type == null ? (
     var.os_arch == "aarch64" ? "virt" : "q35"
   ) : var.qemu_machine_type
-  qemuargs = var.qemuargs == null ? (
+  qemu_args = var.qemu_args == null ? (
     var.is_windows ? [
       ["-drive", "file=${path.root}/win_answer_files/virtio-win.iso,media=cdrom,index=3"],
       ["-drive", "file=${path.root}/../builds/packer-${var.os_name}-${var.os_version}-${var.os_arch}-qemu/{{ .Name }},if=virtio,cache=writeback,discard=ignore,format=qcow2,index=1"],
@@ -24,7 +24,7 @@ locals {
         ["-boot", "strict=off"]
       ] : null
     )
-  ) : var.qemuargs
+  ) : var.qemu_args
 
   /* ----------- hyperv-iso ----------------------*/
   hyperv_enable_dynamic_memory = var.hyperv_enable_dynamic_memory == null ? (
