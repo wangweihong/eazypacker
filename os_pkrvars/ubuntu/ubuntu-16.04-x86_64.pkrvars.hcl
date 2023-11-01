@@ -8,7 +8,7 @@ iso_urls = [
 ]
 iso_checksum         = "b8b172cbdf04f5ff8adc8c2c1b4007ccf66f00fc6a324a6da6eba67de71746f6"
 vmware_guest_os_type = "ubuntu-64"
-vbox_guest_os_type      = "Ubuntu_64"
+virtualbox_guest_os_type      = "Ubuntu_64"
 // <bs>等为模拟键盘执行删除操作,删除原来的boot命令
 // net.ifnames=0为内核参数禁止可预测的网络接口重命名行为。不能设置该参数, 会导致使用默认网卡eth0，而不是ens33。从而导致网卡一直无法启动
 boot_command = ["<enter><wait>",
