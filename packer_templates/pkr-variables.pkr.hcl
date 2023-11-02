@@ -312,7 +312,7 @@ variable "vmware_vmx_data" {
     //"ethernet0.virtualDev" : "e1000"
     "ethernet0.present" : "TRUE"
     # 指定网卡编号为ens33
-    "ethernet0.pcislotnumber" : "33"
+    //"ethernet0.pcislotnumber" : "33"
   }
   description = "vmx 配置.更多查阅:cttps://sanbarrow.com/vmx/vmx-network.html"
 }
@@ -328,8 +328,9 @@ variable "vmware_enable_usb" {
 }
 
 variable "vmware_network_adapter_type" {
-  type    = string
-  default = "e1000e"
+  type = string
+  // default = "e1000e"
+  default = "e1000"
 }
 
 variable "vmware_network" {

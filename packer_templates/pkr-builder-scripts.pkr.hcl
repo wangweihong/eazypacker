@@ -48,20 +48,18 @@ locals {
         ] : (
         var.os_name == "ubuntu" ||
         var.os_name == "debian" ? [
-          // 替换阿里云源
-          //"${path.root}/scripts/${var.os_name}/replace_app_source.sh",
           // 更新/禁用系统软件
           "${path.root}/scripts/${var.os_name}/update_${var.os_name}.sh",
           // 配置用户登录欢迎信息
           "${path.root}/scripts/_common/motd.sh",
           // 配置sshd安全性
-          "${path.root}/scripts/_common/sshd.sh",   
+          "${path.root}/scripts/_common/sshd.sh",
+          // 配置网络
+          "${path.root}/scripts/${var.os_name}/networking_${var.os_name}.sh",
           // 配置sudo用户权限
           "${path.root}/scripts/${var.os_name}/sudoers_${var.os_name}.sh",
           "${path.root}/scripts/${var.os_name}/systemd_${var.os_name}.sh",
           "${path.root}/scripts/_common/vmware_debian_ubuntu.sh",
-          // 还原应用源
-          //"${path.root}/scripts/${var.os_name}/post_replace_app_source.sh",
           "${path.root}/scripts/${var.os_name}/cleanup_${var.os_name}.sh",
           "${path.root}/scripts/_common/minimize.sh"
           ] : (
@@ -91,5 +89,5 @@ locals {
         )
       )
     )
-  ): var.gloden_image_scripts
+  ) : var.gloden_image_scripts
 }

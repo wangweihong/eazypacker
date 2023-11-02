@@ -78,9 +78,9 @@ build {
     //在执行脚本后，预期会断开与远程主机的连接
     expect_disconnect = true
     //要执行的脚本列表
-    scripts           = local.gloden_image_scripts
+    scripts = local.gloden_image_scripts
     //避免在windows执行
-    except            = var.is_windows ? local.golden_image_source_names : null
+    except = var.is_windows ? local.golden_image_source_names : null
   }
 
   # Windows Updates and scripts
@@ -116,10 +116,47 @@ build {
   # Convert machines to vagrant boxes
   post-processor "vagrant" {
     compression_level    = 9
-    keep_input_artifact = var.keep_input_artifact
+    keep_input_artifact  = var.keep_input_artifact
     output               = "${local.vagrant_output_path}/${var.os_name}-${var.os_version}-${var.os_arch}.{{ .Provider }}.box"
     vagrantfile_template = var.is_windows ? "${path.root}/vagrantfile-windows.template" : null
     // 没有设置的话则直接忽略掉该post-processor
-    except = var.is_vagranted ? null: local.golden_image_source_names
+    except = var.is_vagranted ? null : local.golden_image_source_names
+  }
+}
+
+build {
+  name = "custom_image"
+
+  sources = var.custom_image_sources_enabled
+
+  # Linux Shell scipts
+  provisioner "shell" {
+    environment_vars = var.os_name == "freebsd" ? [
+      "HOME_DIR=/home/vagrant",
+      "http_proxy=${var.http_proxy}",
+      "https_proxy=${var.https_proxy}",
+      "no_proxy=${var.no_proxy}",
+      "pkg_branch=quarterly",
+      ] : (
+      var.os_name == "solaris" ? [] : [
+        "HOME_DIR=/home/vagrant",
+        "http_proxy=${var.http_proxy}",
+        "https_proxy=${var.https_proxy}",
+        "no_proxy=${var.no_proxy}",
+      ]
+    )
+    //运行shell脚本时使用的命令
+    //如果 var.os_name 是 "freebsd"，则使用 su 命令以 root 用户身份执行脚本。
+    //如果 var.os_name 是 "solaris"，则使用 sudo 命令以 root 用户身份执行脚本。
+    //如果 var.os_name 不是 "freebsd" 也不是 "solaris"，则使用 sudo 命令以 root 用户身份执行脚本。
+    execute_command = var.os_name == "freebsd" ? "echo 'vagrant' | {{.Vars}} su -m root -c 'sh -eux {{.Path}}'" : (
+      var.os_name == "solaris" ? "echo 'vagrant'|sudo -S bash {{.Path}}" : "echo 'vagrant' | {{ .Vars }} sudo -S -E sh -eux '{{ .Path }}'"
+    )
+    //在执行脚本后，预期会断开与远程主机的连接
+    expect_disconnect = true
+    //要执行的脚本列表
+    scripts = local.custom_image_scripts
+    //避免在windows执行
+    except = var.is_windows ? local.custom_image_source_names : null
   }
 }
