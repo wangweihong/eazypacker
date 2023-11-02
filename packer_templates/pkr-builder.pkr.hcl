@@ -37,13 +37,6 @@ packer {
 locals {
   build_version_path  = var.build_version_path == null ? "${path.root}/../.build_version" : var.build_version_path
   vagrant_output_path = var.output_directory == null ? "${path.root}/../builds" : var.output_directory
-
-  golden_image_sources_enabled = var.is_golden_image_build == true ? var.golden_image_sources_enabled : var.images_enabled
-  //根据不同目的来搭配脚本
-  scripts = var.scripts == null ? (
-    var.is_golden_image_build == true ? local.gloden_image_scripts : local.custom_image_scripts
-  ) : var.scipts
-
   //这里的目的是用于控制except
   golden_image_source_names = [for source in var.golden_image_sources_enabled : trimprefix(source, "source.")]
   custom_image_source_names = [for source in var.golden_image_sources_enabled : trimprefix(source, "source.")]
@@ -57,7 +50,7 @@ build {
   // 强调当前构建块目的是构建黄金镜像
   name = "golden_image"
 
-  sources = local.golden_image_sources_enabled
+  sources = var.golden_image_sources_enabled
 
   # Linux Shell scipts
   provisioner "shell" {
@@ -85,7 +78,7 @@ build {
     //在执行脚本后，预期会断开与远程主机的连接
     expect_disconnect = true
     //要执行的脚本列表
-    scripts           = local.scripts
+    scripts           = local.gloden_image_scripts
     //避免在windows执行
     except            = var.is_windows ? local.golden_image_source_names : null
   }

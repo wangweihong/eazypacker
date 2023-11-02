@@ -39,31 +39,25 @@ variable "golden_image_sources_enabled" {
   type = list(string)
   default = [
     // FIXME: 在windows 10尝试安装ubuntu 16/20均无法无人值守安装. 而且一堆奇怪的问题。先不启用
-    // "source.hyperv-iso.vm",
-    // FIXME: MAC的虚拟化, 无环境测试。先不使用
-    // "source.parallels-iso.vm",
+    "source.hyperv-iso.vm",
+    // FIXME: MAC的虚拟化, 无环境测试
+    "source.parallels-iso.vm",
+    // FIXME： 和hyperv一样问题不少
+    "source.virtualbox-iso.vm",
     "source.qemu.vm",
-    // FIXME： 和hyperv一样问题不少，先不启用
-    // "source.virtualbox-iso.vm",
     "source.vmware-iso.vm",
   ]
   description = "从ISO中构建各种操作系统的黄金镜像"
 }
 
-variable "images_enabled" {
+variable "custom_image_sources_enabled" {
   type = list(string)
   default = [
     "source.vmware-vmx.vm",
+    "source.alicloud-ecs.vm"
   ]
-  description = "基于黄金镜像构建各种目的镜像"
+  description = "基于黄金镜像构建各种定制化镜像"
 }
-
-variable "is_golden_image_build" {
-  type        = bool
-  default     = true
-  description = "是否从iso中构建黄金镜像。为否时,则基于黄金镜像构建其他镜像"
-}
-
 
 variable "is_windows" {
   type        = bool
@@ -359,15 +353,15 @@ variable "vmware_vmdk_name" {
   description = "生成的磁盘镜像名.不设置则默认为disk"
 }
 
-/////////////////////// vmware-vmx////////////////
-variable "vmware_vmx_format" {
+variable "vmware_format" {
   type    = string
-  default = "vmx"
+  default = "ova"
   // 注意如果是ova必须安装ovftool工具,且ovftool程序在系统PATH路径上
   // format = "ova"
   description = "输出格式"
 }
 
+/////////////////////// vmware-vmx////////////////
 variable "vmware_vmx_display_name" {
   type    = string
   default = null

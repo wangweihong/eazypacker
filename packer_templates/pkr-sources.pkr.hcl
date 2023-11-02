@@ -97,7 +97,7 @@ locals {
   ) : var.floppy_files
   http_directory   = var.http_directory == null ? "${path.root}/http" : var.http_directory
   memory           = var.memory == null ? (var.is_windows ? 4096 : 2048) : var.memory
-  output_directory = var.output_directory == null ? "${path.root}/../builds/packer-${var.os_name}-${var.os_version}-${var.os_arch}" : var.output_directory
+  output_directory = var.output_directory == null ? "${path.root}/../builds/packer/${var.os_name}/${var.os_version}/${var.os_arch}" : var.output_directory
   shutdown_command = var.shutdown_command == null ? (
     var.is_windows ? "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"" : (
       var.os_name == "freebsd" ? "echo ${var.ssh_password} | su -m root -c 'shutdown -p now'" : "echo ${var.ssh_password} | sudo -S /sbin/halt -h -p"
@@ -130,22 +130,22 @@ source "vmware-iso" "vm" {
   tools_upload_flavor            = local.vmware_tools_upload_flavor // windows这里貌似有bug,会阻塞在上传vmware-iso
   tools_upload_path              = local.vmware_tools_upload_path
   version                        = var.vmware_version
+  format                         = var.vmware_format
 
   /*----------- Source块通用参数 ---------- */
-  boot_command = var.boot_command
-  boot_wait    = var.vmware_boot_wait == null ? local.default_boot_wait : var.vmware_boot_wait
-  cpus         = var.cpus
-  memory       = local.memory
-  disk_size    = var.disk_size
-  headless     = var.headless
-
+  boot_command     = var.boot_command
+  boot_wait        = var.vmware_boot_wait == null ? local.default_boot_wait : var.vmware_boot_wait
+  cpus             = var.cpus
+  memory           = local.memory
+  disk_size        = var.disk_size
+  headless         = var.headless
   cd_files         = local.cd_files
   floppy_files     = local.floppy_files
   iso_checksum     = var.iso_checksum
   iso_url          = local.iso_url
   iso_urls         = var.iso_urls
   http_directory   = local.http_directory
-  output_directory = "${local.output_directory}-${source.type}"
+  output_directory = "${local.output_directory}/${source.type}"
   shutdown_command = local.shutdown_command
   shutdown_timeout = var.shutdown_timeout
   communicator     = local.communicator
@@ -182,7 +182,7 @@ source "hyperv-iso" "vm" {
   iso_urls         = var.iso_urls
   iso_url          = var.iso_url
   memory           = local.memory
-  output_directory = "${local.output_directory}-hyperv"
+  output_directory = "${local.output_directory}/${source.type}"
   shutdown_command = local.shutdown_command
   shutdown_timeout = var.shutdown_timeout
   ssh_password     = var.ssh_password
@@ -220,7 +220,7 @@ source "virtualbox-iso" "vm" {
   iso_url          = var.iso_url
   iso_urls         = var.iso_urls
   memory           = local.memory
-  output_directory = "${local.output_directory}-virtualbox"
+  output_directory = "${local.output_directory}/${source.type}"
   shutdown_command = local.shutdown_command
   shutdown_timeout = var.shutdown_timeout
   ssh_password     = var.ssh_password
@@ -252,7 +252,7 @@ source "parallels-iso" "vm" {
   iso_url          = var.iso_url
   iso_urls         = var.iso_urls
   memory           = local.memory
-  output_directory = "${local.output_directory}-parallels"
+  output_directory = "${local.output_directory}/${source.type}"
   shutdown_command = local.shutdown_command
   shutdown_timeout = var.shutdown_timeout
   ssh_password     = var.ssh_password
@@ -288,7 +288,7 @@ source "qemu" "vm" {
   iso_url          = var.iso_url
   iso_urls         = var.iso_urls
   memory           = local.memory
-  output_directory = "${local.output_directory}-qemu"
+  output_directory = "${local.output_directory}/${source.type}"
   shutdown_command = local.shutdown_command
   shutdown_timeout = var.shutdown_timeout
   ssh_password     = var.ssh_password
@@ -313,9 +313,10 @@ source "vmware-vmx" "vm" {
   linked                         = var.vmware_vmx_linked
   source_path                    = local.vmware_vmx_source_path
   vmdk_name                      = local.vmware_vmdk_name
+  format                         = var.vmware_format
   /*----------- Source块通用参数 ---------- */
 
-  output_directory = "${local.output_directory}-${source.type}"
+  output_directory = "${local.output_directory}/${source.type}"
   shutdown_command = local.shutdown_command
   shutdown_timeout = var.shutdown_timeout
   display_name     = local.vmware_vmx_display_name
