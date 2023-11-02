@@ -67,7 +67,7 @@ locals {
   /*------------ vmware-vmx ----------*/
   //可以直接设置镜像路径，或者设置镜像目录和镜像名拼接成路径
   vmware_vmx_source_file_format = var.vmware_vmx_source_file_format == null ? "vmx" : var.vmware_vmx_source_file_format
-  vmware_vmx_source_directory   = var.vmware_vmx_source_directory == null ? "${local.output_directory}-vmware-iso" : var.vmware_vmx_source_directory
+  vmware_vmx_source_directory   = var.vmware_vmx_source_directory == null ? "${local.output_directory}/vmware-iso" : var.vmware_vmx_source_directory
   vmware_vmx_source_file_name   = var.vmware_vmx_source_file_name == null ? "${local.vm_name}" : var.vmware_vmx_source_file_name
   vmware_vmx_source_path        = var.vmware_vmx_source_path == null ? "${local.vmware_vmx_source_directory}/${local.vmware_vmx_source_file_name}.${local.vmware_vmx_source_file_format}" : var.vmware_vmx_source
   /* --------- Source块 ------------*/
@@ -97,7 +97,7 @@ locals {
   ) : var.floppy_files
   http_directory   = var.http_directory == null ? "${path.root}/http" : var.http_directory
   memory           = var.memory == null ? (var.is_windows ? 4096 : 2048) : var.memory
-  output_directory = var.output_directory == null ? "${path.root}/../builds/packer/${var.os_name}/${var.os_version}/${var.os_arch}" : var.output_directory
+  output_directory = var.output_directory == null ? "${path.root}/../builds/packer/${var.os_name}/${var.os_version}/${var.os_arch}" : "${var.output_directory}/${var.os_name}/${var.os_version}/${var.os_arch}"
   shutdown_command = var.shutdown_command == null ? (
     var.is_windows ? "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"" : (
       var.os_name == "freebsd" ? "echo ${var.ssh_password} | su -m root -c 'shutdown -p now'" : "echo ${var.ssh_password} | sudo -S /sbin/halt -h -p"

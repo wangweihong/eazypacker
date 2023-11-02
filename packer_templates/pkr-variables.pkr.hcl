@@ -78,8 +78,8 @@ variable "build_version_path" {
 }
 
 variable "is_vagranted" {
-  type   = bool
-  default = false
+  type        = bool
+  default     = false
   description = "是否对输出制品构建成vagrant box"
 }
 
@@ -87,6 +87,12 @@ variable "vagrant_output_path" {
   type        = string
   default     = null
   description = "vagrant output路径"
+}
+
+variable "keep_input_artifact" {
+  type        = bool
+  default     = false
+  description = "post-processors是否保持原制品"
 }
 
 /*----------- 操作系统通用变量 -------------- */
@@ -613,13 +619,13 @@ variable "qemu_args" {
 }
 
 variable "qemu_format" {
-  type = string 
-  default = null
+  type        = string
+  default     = null
   description = "虚拟机镜像输出格式, 支持raw或者qcow2, 默认为qcow2."
 }
 
-variable "qemu_disk_image"{
-  type = bool
-  default = null
+variable "qemu_disk_image" {
+  type        = bool
+  default     = null
   description = "是否从镜像(而非iso)来构建虚拟机镜像."
 }

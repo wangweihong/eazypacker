@@ -116,9 +116,10 @@ build {
   # Convert machines to vagrant boxes
   post-processor "vagrant" {
     compression_level    = 9
+    keep_input_artifact = var.keep_input_artifact
     output               = "${local.vagrant_output_path}/${var.os_name}-${var.os_version}-${var.os_arch}.{{ .Provider }}.box"
     vagrantfile_template = var.is_windows ? "${path.root}/vagrantfile-windows.template" : null
     // 没有设置的话则直接忽略掉该post-processor
-    except = var.is_vagranted ? null:local.golden_image_source_names
+    except = var.is_vagranted ? null: local.golden_image_source_names
   }
 }
