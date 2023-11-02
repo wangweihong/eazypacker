@@ -35,7 +35,7 @@ variable "no_proxy" {
   description = "No Proxy"
 }
 
-variable "sources_enabled" {
+variable "golden_image_sources_enabled" {
   type = list(string)
   default = [
     // FIXME: 在windows 10尝试安装ubuntu 16/20均无法无人值守安装. 而且一堆奇怪的问题。先不启用
@@ -83,6 +83,12 @@ variable "build_version_path" {
   description = "用于记录构建操作系统镜像的代码版本号"
 }
 
+variable "is_vagranted" {
+  type   = bool
+  default = false
+  description = "是否对输出制品构建成vagrant box"
+}
+
 variable "vagrant_output_path" {
   type        = string
   default     = null
@@ -90,11 +96,7 @@ variable "vagrant_output_path" {
 }
 
 /*----------- 操作系统通用变量 -------------- */
-variable "replace_updates_source" {
-  type        = bool
-  default     = false
-  description = "是否更新应用源"
-}
+
 
 /* ---------- Source块通用变量 ------------- */
 variable "boot_command" {
@@ -290,7 +292,7 @@ variable "vmware_tools_upload_path" {
 
 variable "vmware_version" {
   type        = number
-  default     = 20
+  default     = 16
   description = "用于指明当前构建的vmware workstation版本. 如果版本不匹配, 会直接报错."
 }
 
