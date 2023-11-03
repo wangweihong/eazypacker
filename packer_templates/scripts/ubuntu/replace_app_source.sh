@@ -1,8 +1,8 @@
 #!/bin/sh -eux
 
-if [ -z $REPLACE_APP_SOURCE ];then
-    exit 0;
-fi
+# if [ -z $REPLACE_APP_SOURCE ];then
+#     exit 0;
+# fi
 
 mv /etc/apt/sources.list /etc/apt/sources.list.bak
 
