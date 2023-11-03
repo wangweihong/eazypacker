@@ -27,5 +27,12 @@
 *  `is_golden_image_build=false`: 必传，表明当前为基于黄金镜像构建其他镜像
 * `-var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl`: 如果不通过`vmware_vmx_source_path`指定黄金镜像路径时，默认是源为`${local.output_directory}/${var.os_name}/${var.os_type}/${var.os_arch}.vmx`
 
+## 构建alicloud-ecs镜像
+1.  配置账号密码
+    ```
+        export ALICLOUD_ACCESS_KEY=xxx
+        export ALICLOUD_SECRET_KEY=xxx
+    ```
+2. `PACKER_CACHE_DIR=/f/build_cache packer build -only=*.alicloud-ecs.vm -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build ./packer_templates/`
 ### 注意
 * 如果需要将格式转换成ova格式, 需要安装ova必须安装ovftool工具,且将ovftool程序路径添加环境变量PATH中
