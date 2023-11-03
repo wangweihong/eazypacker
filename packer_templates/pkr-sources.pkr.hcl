@@ -340,6 +340,8 @@ source "alicloud-ecs" "vm" {
   image_family                = var.alicloud_image_family
   source_image                = var.alicloud_source_image
   image_name                  = local.vm_name
+  image_encrypted             = var.alicloud_image_encrypted
+  ssh_private_ip              = var.alicloud_ssh_private_ip
   associate_public_ip_address = var.alicloud_vm_associate_public_ip_address
   run_tags = var.alicloud_run_tags == null ? ({
     "Built by"   = "Packer"

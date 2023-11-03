@@ -482,7 +482,13 @@ variable "alicloud_source_image" {
 variable "alicloud_vm_associate_public_ip_address" {
   type        = bool
   default     = true
-  description = "是否设置公网IP. 必须设置外网IP,否则实例构建后无法通过ssh连接执行provisioner操作"
+  description = "是否设置公网IP. 注意，如果不设置alicloud_ssh_private_ip，则设置外网IP,否则实例构建后无法通过ssh连接执行provisioner操作"
+}
+
+variable "alicloud_ssh_private_ip" {
+  type        = bool
+  default     = false
+  description = "是否通过私网IP来连接ssh."
 }
 
 variable "alicloud_run_tags" {
@@ -502,6 +508,13 @@ variable "alicloud_ssh_user" {
   default     = "root"
   description = "ssh用户"
 }
+
+variable "alicloud_image_encrypted" {
+  type        = bool
+  default     = null
+  description = "是否对镜像加密"
+}
+
 /* ----------  alicloud-import -----------*/
 variable "is_alicloud_import" {
   type        = bool
