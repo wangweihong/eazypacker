@@ -150,8 +150,9 @@ build {
     //如果 var.os_name 是 "freebsd"，则使用 su 命令以 root 用户身份执行脚本。
     //如果 var.os_name 是 "solaris"，则使用 sudo 命令以 root 用户身份执行脚本。
     //如果 var.os_name 不是 "freebsd" 也不是 "solaris"，则使用 sudo 命令以 root 用户身份执行脚本。
-    execute_command = var.os_name == "freebsd" ? "echo 'vagrant' | {{.Vars}} su -m root -c 'sh -eux {{.Path}}'" : (
-      var.os_name == "solaris" ? "echo 'vagrant'|sudo -S bash {{.Path}}" : "echo 'vagrant' | {{ .Vars }} sudo -S -E sh -eux '{{ .Path }}'"
+    execute_command = source.type == "alicloud-ecs" ? "{{ .Path}}" : (
+      var.os_name == "freebsd" ? "echo 'vagrant' | {{.Vars}} su -m root -c 'sh -eux {{.Path}}'" : (
+      var.os_name == "solaris" ? "echo 'vagrant'|sudo -S bash {{.Path}}" : "echo 'vagrant' | {{ .Vars }} sudo -S -E sh -eux '{{ .Path }}'")
     )
     //在执行脚本后，预期会断开与远程主机的连接
     expect_disconnect = true
@@ -162,18 +163,18 @@ build {
   }
 
   // import image to alicloud 
-  post-processor "alicloud-import" {
-    access_key          = var.alicloud_access_key
-    secret_key          = var.alicloud_secret_key
-    region              = var.alicloud_region
-    image_name          = var.alicloud_import_image_name
-    image_os_type       = var.is_windows ? "windows" : "linux"
-    image_platform      = var.os_name
-    image_architecture  = var.os_arch
-    format              = var.alicloud_import_format
-    oss_bucket_name     = var.alicloud_import_oss_bucket
-    keep_input_artifact = var.alicloud_import_keep_input_artifact
-    // 没有设置的话则直接忽略掉该post-processor
-    except = var.is_alicloud_import ? null : var.custom_image_sources_enabled
-  }
+  // post-processor "alicloud-import" {
+  //   access_key          = var.alicloud_access_key
+  //   secret_key          = var.alicloud_secret_key
+  //   region              = var.alicloud_region
+  //   image_name          = var.alicloud_import_image_name
+  //   image_os_type       = var.is_windows ? "windows" : "linux"
+  //   image_platform      = var.os_name
+  //   image_architecture  = var.os_arch
+  //   format              = var.alicloud_import_format
+  //   oss_bucket_name     = var.alicloud_import_oss_bucket
+  //   keep_input_artifact = var.alicloud_import_keep_input_artifact
+  //   // 没有设置的话则直接忽略掉该post-processor
+  //   except = var.is_alicloud_import ? null : var.custom_image_sources_enabled
+  // }
 }
