@@ -347,5 +347,5 @@ source "alicloud-ecs" "vm" {
   }) : var.alicloud_run_tags
   description = var.alicloud_description
   /*----------- Source块通用参数 ---------- */
-  ssh_username = var.ssh_username
+  ssh_username = var.alicloud_ssh_user
 }

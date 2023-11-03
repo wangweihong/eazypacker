@@ -27,7 +27,7 @@ packer {
     }
     alicloud = {
       source  = "github.com/hashicorp/alicloud"
-      version = "~> 1"
+      version = ">= v1.1.1"
     }
   }
 

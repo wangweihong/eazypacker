@@ -7,3 +7,5 @@ parallels_guest_os_type  = "centos"
 virtualbox_guest_os_type = "RedHat_64"
 vmware_guest_os_type     = "arm-centos-64"
 boot_command             = ["<wait><up>e<wait><down><down><end><wait> text ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/rhel/7ks.cfg <leftCtrlOn>x<leftCtrlOff>"]
+// alicloud
+alicloud_image_family = "acs:centos_7_9_arm64"

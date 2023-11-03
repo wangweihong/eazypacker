@@ -319,7 +319,7 @@ variable "vmware_vmx_data" {
 variable "vmware_vmx_remove_ethernet_interfaces" {
   type    = bool
   default = false
-  // 注意：这个操作会导致在镜像创建后的网卡被删除, 从而导致创建的云服务器无法启动网卡分配IP
+  // 注意：这个操作会导致在镜像创建后的网卡被删除, 从而导致创建的云服务器无法启动网卡分配IP。这个特性是供vagrant box使用。
   // vagrant box启动时会自动创建网卡, 但其他的如vmware workstation并不会。
   // 见https://developer.hashicorp.com/packer/integrations/hashicorp/vmware/latest/components/builder/vmx
   description = "是否在构建玩镜像后删除所有网卡"
@@ -410,15 +410,34 @@ variable "vmware_vmx_linked" {
 
 /////////////////////// alicloud-ecs////////////////
 variable "alicloud_access_key" {
-  type        = string
-  default     = env("alicloud_access_key")
+  type = string
+  default     = env("ALICLOUD_ACCESS_KEY")
   description = "access key to acess to the alicloud"
+
+  validation {
+    condition     = length(var.alicloud_access_key) > 0
+    error_message = <<EOF
+The alicloud_access_key var is not set: make sure to at least set the ALICLOUD_ACCESS_KEY env var.
+To fix this you could also set the alicloud_access_key variable from the arguments, for example:
+$ packer build -var=alicloud_access_key=xxxx...
+EOF
+  }
 }
 
 variable "alicloud_secret_key" {
   type        = string
-  default     = env("alicloud_secret_key")
+  default     = env("ALICLOUD_SECRET_KEY")
   description = "secret key to acess to the alicloud"
+
+    
+  validation {
+    condition     = length(var.alicloud_secret_key) > 0
+    error_message = <<EOF
+The alicloud_secret_key var is not set: make sure to at least set the ALICLOUD_SECRET_KEY env var.
+To fix this you could also set the alicloud_access_key variable from the arguments, for example:
+$ packer build -var=alicloud_secret_key=xxxx...
+EOF
+  }
 }
 
 variable "alicloud_instance_type" {
@@ -435,8 +454,8 @@ variable "alicloud_internet_charge_type" {
 
 variable "alicloud_io_optimized" {
   type        = bool
-  default     = false
-  description = "是否优化IO"
+  default     = null
+  description = "是否优化IO. 部分实例不支持"
 }
 
 variable "alicloud_region" {
@@ -448,7 +467,7 @@ variable "alicloud_region" {
 variable "alicloud_image_family" {
   type        = string
   default     = null
-  description = "指定构建镜像的基础镜像所属族,如acs:centos_7_9_x64"
+  description = "指定构建镜像的基础镜像所属族,如acs:centos_7_9_x64. 见https://help.aliyun.com/zh/ecs/user-guide/overview-45?spm=a2c4g.11186623.0.0.117e3a54BDq3jh"
 }
 
 variable "alicloud_source_image" {
@@ -460,7 +479,7 @@ variable "alicloud_source_image" {
 
 variable "alicloud_vm_associate_public_ip_address" {
   type        = bool
-  default     = null
+  default     = true
   description = "是否设置公网IP. 必须设置外网IP,否则实例构建后无法通过ssh连接执行provisioner操作"
 }
 
@@ -474,6 +493,12 @@ variable "alicloud_description" {
   type        = string
   default     = null
   description = "镜像描述"
+}
+
+variable "alicloud_ssh_user" {
+  type        = string
+  default     = "root"
+  description = "ssh用户"
 }
 
 /////////////////////////hyperv-iso//////////////////////////

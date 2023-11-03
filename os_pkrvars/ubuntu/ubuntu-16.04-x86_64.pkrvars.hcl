@@ -30,3 +30,5 @@ boot_command = ["<enter><wait>",
   "debconf/priority=critical ",
   "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu/16.04/preseed.cfg ",
 "<enter>"]
+// alicloud
+alicloud_image_family= "acs:ubuntu_16_04_x64"
