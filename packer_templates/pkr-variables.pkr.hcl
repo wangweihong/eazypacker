@@ -318,8 +318,10 @@ variable "vmware_vmx_data" {
 }
 variable "vmware_vmx_remove_ethernet_interfaces" {
   type    = bool
-  default = true
-  // 建议开启,否则所有镜像构建出来的网卡IP都一样
+  default = false
+  // 注意：这个操作会导致在镜像创建后的网卡被删除, 从而导致创建的云服务器无法启动网卡分配IP
+  // vagrant box启动时会自动创建网卡, 但其他的如vmware workstation并不会。
+  // 见https://developer.hashicorp.com/packer/integrations/hashicorp/vmware/latest/components/builder/vmx
   description = "是否在构建玩镜像后删除所有网卡"
 }
 variable "vmware_enable_usb" {
