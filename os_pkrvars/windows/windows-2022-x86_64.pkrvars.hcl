@@ -7,3 +7,5 @@ iso_checksum             = "sha256:3e4fa6d8507b554856fc9ca6079cc402df11a8b793448
 parallels_guest_os_type  = "win-2022"
 virtualbox_guest_os_type = "Windows2022_64"
 vmware_guest_os_type     = "windows9srv-64"
+// alicloud
+alicloud_image_family = "acs:win_2022_datacenter_x64_zh"

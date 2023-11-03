@@ -7,3 +7,5 @@ parallels_guest_os_type  = "debian"
 virtualbox_guest_os_type = "Debian_64"
 vmware_guest_os_type     = "debian-64"
 boot_command             = ["<wait><esc><wait>auto preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/debian/preseed.cfg netcfg/get_hostname={{ .Name }}<enter>"]  
+// alicloud
+alicloud_image_family = ""

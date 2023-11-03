@@ -8,4 +8,4 @@ virtualbox_guest_os_type = "RedHat_64"
 vmware_guest_os_type     = "centos-64"
 boot_command             = ["<wait><up><wait><tab> inst.text inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/rhel/8ks.cfg<enter><wait>"]
 // alicloud
-alicloud_image_family = "acs:centos_8_3_x64"
+alicloud_image_family = "acs:centos_stream_8_x64"

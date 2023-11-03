@@ -8,3 +8,5 @@ iso_checksum             = "ebbc79106715f44f5020f77bd90721b17c5a877cbc15a3535b99
 parallels_guest_os_type  = "win-11"
 virtualbox_guest_os_type = "Windows11_64"
 vmware_guest_os_type     = "windows9srv-64"
+// alicloud
+alicloud_image_family = ""

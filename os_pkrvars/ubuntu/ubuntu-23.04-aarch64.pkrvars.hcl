@@ -7,3 +7,5 @@ parallels_guest_os_type  = "ubuntu"
 virtualbox_guest_os_type = "Ubuntu_64"
 vmware_guest_os_type     = "arm-ubuntu-64"
 boot_command             = ["<wait>e<wait><down><down><down><end> autoinstall ds=nocloud-net\\;s=http://{{.HTTPIP}}:{{.HTTPPort}}/ubuntu/<wait><f10><wait>"]
+// alicloud
+alicloud_image_family = ""

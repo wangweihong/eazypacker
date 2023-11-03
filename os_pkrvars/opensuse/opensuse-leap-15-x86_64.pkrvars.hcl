@@ -7,3 +7,5 @@ parallels_guest_os_type  = "opensuse"
 virtualbox_guest_os_type = "OpenSUSE_64"
 vmware_guest_os_type     = "opensuse-64"
 boot_command             = ["<wait5><esc><enter><wait>linux biosdevname=0 net.ifnames=0 netdevice=eth0 netsetup=dhcp lang=en_US textmode=1 autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/opensuse/autoinst.xml<enter><wait>"]
+// alicloud
+alicloud_image_family = "acs:opensuse_15_4_x64"

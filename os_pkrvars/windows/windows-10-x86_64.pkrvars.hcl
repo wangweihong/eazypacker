@@ -7,4 +7,5 @@ iso_checksum             = "ef7312733a9f5d7d51cfa04ac497671995674ca5e1058d5164d6
 parallels_guest_os_type  = "win-10"
 virtualbox_guest_os_type = "Windows10_64"
 vmware_guest_os_type     = "windows9srv-64"
-
+// alicloud
+alicloud_image_family = ""

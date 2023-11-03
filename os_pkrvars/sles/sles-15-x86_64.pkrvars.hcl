@@ -7,3 +7,5 @@ parallels_guest_os_type  = "suse"
 virtualbox_guest_os_type = "SUSE_LE_64"
 vmware_guest_os_type     = "sles15-64"
 boot_command             = ["<wait><esc><enter><wait>linux netdevice=eth0 netsetup=dhcp install=cd:/<wait> lang=en_US autoyast=http://{{ .HTTPIP }}:{{ .HTTPPort }}/sles/15-autoinst.xml<wait> textmode=1<wait><enter><wait>"]
+// alicloud
+alicloud_image_family = "acs:suse_linux_enterprise_15_sp3_x64"
