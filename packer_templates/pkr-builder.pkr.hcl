@@ -122,6 +122,7 @@ build {
     // 没有设置的话则直接忽略掉该post-processor
     except = var.is_vagranted ? null : local.golden_image_source_names
   }
+
 }
 
 build {
@@ -158,5 +159,21 @@ build {
     scripts = local.custom_image_scripts
     //避免在windows执行
     except = var.is_windows ? local.custom_image_source_names : null
+  }
+
+  // import image to alicloud 
+  post-processor "alicloud-import" {
+    access_key          = var.alicloud_access_key
+    secret_key          = var.alicloud_secret_key
+    region              = var.alicloud_region
+    image_name          = var.alicloud_import_image_name
+    image_os_type       = var.is_windows ? "windows" : "linux"
+    image_platform      = var.os_name
+    image_architecture  = var.os_arch
+    format              = var.alicloud_import_format
+    oss_bucket_name     = var.alicloud_import_oss_bucket
+    keep_input_artifact = var.alicloud_import_keep_input_artifact
+    // 没有设置的话则直接忽略掉该post-processor
+    except = var.is_alicloud_import ? null : var.custom_image_sources_enabled
   }
 }

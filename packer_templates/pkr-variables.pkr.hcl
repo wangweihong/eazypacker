@@ -410,7 +410,7 @@ variable "vmware_vmx_linked" {
 
 /////////////////////// alicloud-ecs////////////////
 variable "alicloud_access_key" {
-  type = string
+  type        = string
   default     = env("ALICLOUD_ACCESS_KEY")
   description = "access key to acess to the alicloud"
 
@@ -425,13 +425,13 @@ EOF
 }
 
 variable "alicloud_secret_key" {
-  type        = string
+  type = string
   //这种写法也可以
   //default     = env("alicloud_secret_key")
   default     = env("ALICLOUD_SECRET_KEY")
   description = "secret key to acess to the alicloud"
 
-    
+
   validation {
     condition     = length(var.alicloud_secret_key) > 0
     error_message = <<EOF
@@ -502,7 +502,42 @@ variable "alicloud_ssh_user" {
   default     = "root"
   description = "ssh用户"
 }
+/* ----------  alicloud-import -----------*/
+variable "is_alicloud_import" {
+  type        = bool
+  default     = false
+  description = "是否导入镜像到阿里云"
+}
 
+variable "alicloud_import_image_name" {
+  type        = string
+  default     = null
+  description = "导入阿里云镜像的命名"
+}
+
+variable "alicloud_import_oss_bucket" {
+  type        = string
+  default     = "packer"
+  description = "导入的存储桶名"
+}
+
+variable "alicloud_import_keep_input_artifact" {
+  type        = bool
+  default     = false
+  description = "是否保存原镜像"
+}
+
+variable "alicloud_import_format" {
+  type        = string
+  default     = "RAW"
+  description = "导入的镜像格式，仅支持RAW和VHD"
+  validation {
+    condition     = var.alicloud_import_format == "RAW" || var.alicloud_import_format == "VHD"
+    error_message = <<EOF
+Only support RAW and VHD.
+EOF
+  }
+}
 /////////////////////////hyperv-iso//////////////////////////
 # Source block provider specific variables
 # hyperv-iso
