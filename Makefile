@@ -30,7 +30,17 @@ format: tools.verify.packer
 ## lint: Check syntax and styling of pkr sources.
 .PHONY: lint
 lint:
-	@$(MAKE) packer.verify
+	@packer validate  -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build ./packer_templates/
+
+## inpect: show variables 
+.PHONY: inspect
+inspect:
+	@packer inspect  -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build ./packer_templates/
+
+## init: install packer plugins
+.PHONY: init
+init:
+	@packer init ./packer_templates
 
 ## help: Show this help info.
 # 这里会提取target上一行的\#\#注释并生成到Makefile help文档中
