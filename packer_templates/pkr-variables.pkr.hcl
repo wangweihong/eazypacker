@@ -426,6 +426,8 @@ EOF
 
 variable "alicloud_secret_key" {
   type        = string
+  //这种写法也可以
+  //default     = env("alicloud_secret_key")
   default     = env("ALICLOUD_SECRET_KEY")
   description = "secret key to acess to the alicloud"
 
