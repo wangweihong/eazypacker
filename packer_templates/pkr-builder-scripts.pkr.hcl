@@ -49,7 +49,6 @@ locals {
         var.os_name == "ubuntu" ||
         var.os_name == "debian" ? [
           // 更新/禁用系统软件
-          "${path.root}/scripts/${var.os_name}/replace_app_source.sh",
           "${path.root}/scripts/${var.os_name}/update_${var.os_name}.sh",
           // 配置用户登录欢迎信息
           "${path.root}/scripts/_common/motd.sh",
@@ -61,7 +60,6 @@ locals {
           "${path.root}/scripts/${var.os_name}/sudoers_${var.os_name}.sh",
           "${path.root}/scripts/${var.os_name}/systemd_${var.os_name}.sh",
           "${path.root}/scripts/_common/vmware_debian_ubuntu.sh",
-          "${path.root}/scripts/${var.os_name}/post_replace_app_source.sh",
           "${path.root}/scripts/${var.os_name}/cleanup_${var.os_name}.sh",
           "${path.root}/scripts/_common/minimize.sh"
           ] : (
