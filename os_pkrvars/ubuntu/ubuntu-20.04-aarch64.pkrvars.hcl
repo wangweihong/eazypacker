@@ -8,4 +8,4 @@ virtualbox_guest_os_type = "Ubuntu_64"
 vmware_guest_os_type     = "arm-ubuntu-64"
 boot_command             = ["<wait><esc>linux /casper/vmlinuz quiet autoinstall ds='nocloud-net;s=http://{{.HTTPIP}}:{{.HTTPPort}}/ubuntu/'<enter>initrd /casper/initrd<enter>boot<enter>"]
 // alicloud
-alicloud_image_family= "acs:ubuntu_20_04_x64_arm64"
+alicloud_image_family = "acs:ubuntu_20_04_x64_arm64"

@@ -12,4 +12,4 @@ virtualbox_guest_os_type = "Ubuntu_64"
 vmware_guest_os_type     = "ubuntu-64"
 boot_command             = ["<wait>c<wait>set gfxpayload=keep<enter><wait>linux /casper/vmlinuz quiet autoinstall ds=nocloud-net\\;s=http://{{.HTTPIP}}:{{.HTTPPort}}/ubuntu/ ---<enter><wait>initrd /casper/initrd<wait><enter><wait>boot<enter><wait>"]
 // alicloud
-alicloud_image_family= "acs:ubuntu_22_04_x64"
+alicloud_image_family = "acs:ubuntu_22_04_x64"

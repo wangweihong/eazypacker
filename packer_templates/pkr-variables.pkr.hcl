@@ -415,15 +415,15 @@ variable "alicloud_access_key" {
   default     = env("ALICLOUD_ACCESS_KEY")
   description = "access key to acess to the alicloud"
 
-// 设置validate后,即使执行其他的source build也会检测
-//   validation {
-//     condition     = length(var.alicloud_access_key) > 0
-//     error_message = <<EOF
-// The alicloud_access_key var is not set: make sure to at least set the ALICLOUD_ACCESS_KEY env var.
-// To fix this you could also set the alicloud_access_key variable from the arguments, for example:
-// $ packer build -var=alicloud_access_key=xxxx...
-// EOF
-//   }
+  // 设置validate后,即使执行其他的source build也会检测
+  //   validation {
+  //     condition     = length(var.alicloud_access_key) > 0
+  //     error_message = <<EOF
+  // The alicloud_access_key var is not set: make sure to at least set the ALICLOUD_ACCESS_KEY env var.
+  // To fix this you could also set the alicloud_access_key variable from the arguments, for example:
+  // $ packer build -var=alicloud_access_key=xxxx...
+  // EOF
+  //   }
 }
 
 variable "alicloud_secret_key" {
@@ -434,14 +434,14 @@ variable "alicloud_secret_key" {
   description = "secret key to acess to the alicloud"
 
 
-//   validation {
-//     condition     = length(var.alicloud_secret_key) > 0
-//     error_message = <<EOF
-// The alicloud_secret_key var is not set: make sure to at least set the ALICLOUD_SECRET_KEY env var.
-// To fix this you could also set the alicloud_access_key variable from the arguments, for example:
-// $ packer build -var=alicloud_secret_key=xxxx...
-// EOF
-//   }
+  //   validation {
+  //     condition     = length(var.alicloud_secret_key) > 0
+  //     error_message = <<EOF
+  // The alicloud_secret_key var is not set: make sure to at least set the ALICLOUD_SECRET_KEY env var.
+  // To fix this you could also set the alicloud_access_key variable from the arguments, for example:
+  // $ packer build -var=alicloud_secret_key=xxxx...
+  // EOF
+  //   }
 }
 
 variable "alicloud_instance_type" {
