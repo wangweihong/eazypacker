@@ -24,23 +24,37 @@ export USAGE_OPTIONS
 .PHONY: format
 format: tools.verify.packer
 	@echo "===========> Formatting codes"
-	@$(PACKER) fmt -recursive .
+	@$(MAKE) packer.format
 
 
 ## lint: Check syntax and styling of pkr sources.
 .PHONY: lint
 lint:
-	@packer validate  -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build ./packer_templates/
+	@$(MAKE) packer.lint
 
-## inpect: show variables 
-.PHONY: inspect
+## debug: show variables 
+.PHONY: debug
 inspect:
-	@packer inspect  -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build ./packer_templates/
+	@echo "===========> Debug packer template and variables"
+	@$(MAKE) packer.inspect
 
 ## init: install packer plugins
 .PHONY: init
 init:
-	@packer init ./packer_templates
+	@echo "===========> Init packer plugins"
+	@$(MAKE) packer.init
+
+## build.template: build template image from source iso
+.PHONY: build.template
+build.template:
+	@echo "===========> Build template image from source iso"
+	@$(MAKE) packer.build.template
+
+## build.custom: build custom image from template image or public cloud image
+.PHONY: build.custom
+build.custom:
+	@echo "===========> Build custom image from template image or public cloud image"
+	@$(MAKE) packer.build.custom	
 
 ## help: Show this help info.
 # 这里会提取target上一行的\#\#注释并生成到Makefile help文档中
