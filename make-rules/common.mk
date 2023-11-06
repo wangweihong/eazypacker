@@ -23,10 +23,6 @@ ifeq ($(origin ROOT_DIR),undefined)
 ROOT_DIR := $(abspath $(shell cd $(COMMON_SELF_DIR)/.. && pwd -P))
 endif
 
-ifeq ($(origin PACKER_DIR),undefined)
-PACKER_DIR := $(ROOT_DIR)/images
-endif
-
 
 # set the version number. you should not need to do this
 # for the majority of scenarios.
