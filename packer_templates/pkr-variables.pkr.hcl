@@ -95,6 +95,18 @@ variable "keep_input_artifact" {
   description = "post-processors是否保持原制品"
 }
 
+variable "release_version"{
+  type = string
+  default = ""
+  description = "描述构建版本"
+}
+
+variable "build_timestamp" {
+  type = string
+  default = null
+  description = "描述制品构建日期"
+}
+
 /*----------- 操作系统通用变量 -------------- */
 
 

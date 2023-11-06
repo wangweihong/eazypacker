@@ -162,6 +162,20 @@ build {
     except = var.is_windows ? local.custom_image_source_names : null
   }
 
+
+  // genenrate manifests to record image build info
+  post-processor "manifest" {
+    custom_data = {
+      "release_version" : var.release_version,
+      "build_timestamp" : formatdate("YYYYMMDDHHMM", timestamp()),
+      "distro_arch" : var.os_arch,
+      "distro_name" : var.os_name,
+      "distro_version" : var.os_version,
+    }
+    output     = "${local.output_directory}/${source.type}-manifest.json"
+    strip_path = true
+  }
+
   // import image to alicloud 
   // post-processor "alicloud-import" {
   //   access_key          = var.alicloud_access_key
