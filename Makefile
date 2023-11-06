@@ -4,7 +4,7 @@
 
 
 .PHONY: all
-all: fmt lint
+all: format lint
 
 include make-rules/common.mk # make sure include common.mk at the first include line
 include make-rules/tools.mk
@@ -30,7 +30,8 @@ format: tools.verify.packer
 ## lint: Check syntax and styling of pkr sources.
 .PHONY: lint
 lint:
-	@$(MAKE) packer.lint
+	@echo "===========> Validate codes"
+	@$(MAKE) packer.validate
 
 ## debug: show variables 
 .PHONY: debug

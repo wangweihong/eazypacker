@@ -92,4 +92,4 @@ packer.inspect:
 
 .PHONY: packer.validate
 packer.validate: 
-	$(PACKER) validate $(PACKER_VARS) $(PACKER_VAR_FILES)  $(PACKER_TEMPLATE_DIR)
+	$(PACKER) validate  $(PACKER_VAR_FILES)  $(PACKER_TEMPLATE_DIR)
