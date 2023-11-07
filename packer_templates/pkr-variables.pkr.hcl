@@ -317,7 +317,7 @@ variable "vmware_vmx_data" {
     //    "svga.autodetect"         = true
     //    "usb_xhci.present"        = true
     // vwmware vmx必须设置该值。不然出现vmware dhcp无法识别mac地址的IP.
-    "ethernet0.connectionType" : "nat",
+    //"ethernet0.connectionType" : "nat",
     // 设置虚拟机启动时连接网卡
     "ethernet0.startConnected" : "true",
     "ethernet0.addressType" : "generated",
