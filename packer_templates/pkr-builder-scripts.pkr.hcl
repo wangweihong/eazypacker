@@ -4,11 +4,16 @@ locals {
 
   // 自定义镜像脚本
   custom_image_scripts = var.custom_image_scripts == null ? (
-    var.custom_purpose == null ? [
-      "${path.root}/scripts/_common/debug.sh"
-      ] : [
-      //TODO: otherpurpose
-    ]
+    var.custom_purpose == "none" ? [
+      "${path.root}/scripts/_common/none.sh"
+      ] : (var.custom_purpose == "kubernetes" ? [] : (
+        var.custom_purpose == "gitlab-runner" ? [] : (
+          var.custom_purpose == "github-selfhost" ? [] : [
+            "${path.root}/scripts/_common/none.sh"
+          ]
+        )
+      )
+    )
   ) : var.custom_image_scripts
 
   // 黄金镜像构建脚本

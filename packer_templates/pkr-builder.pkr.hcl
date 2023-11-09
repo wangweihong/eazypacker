@@ -113,6 +113,19 @@ build {
     except = var.is_windows ? null : local.golden_image_source_names
   }
 
+  // genenrate manifests to record image build info
+  post-processor "manifest" {
+    custom_data = {
+      "release_version" : var.release_version,
+      "build_timestamp" : formatdate("YYYYMMDDHHMM", timestamp()),
+      "distro_arch" : var.os_arch,
+      "distro_name" : var.os_name,
+      "distro_version" : var.os_version,
+    }
+    output     = "${local.output_directory}/${source.type}-manifest.json"
+    strip_path = true
+  }
+
   # Convert machines to vagrant boxes
   post-processor "vagrant" {
     compression_level    = 9
