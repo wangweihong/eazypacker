@@ -36,3 +36,26 @@
 2. `PACKER_CACHE_DIR=/f/build_cache packer build -only=*.alicloud-ecs.vm -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build ./packer_templates/`
 ### 注意
 * 如果需要将格式转换成ova格式, 需要安装ova必须安装ovftool工具,且将ovftool程序路径添加环境变量PATH中
+
+# Makefile运行
+## 模板
+### 检测
+* `make validate.template.qemu.ubuntu-16.04`构建模板
+* `make validate.template.qemu.ubuntu-16.04 VARS="vmware-format=ova"`构建模板，并传递packer参数"-var vmware-format=ova"
+### 解析
+* `make inspect.template.qemu.ubuntu-16.04`构建模板
+* `make inspect.template.qemu.ubuntu-16.04 VARS="vmware-format=ova"`构建模板，并传递packer参数"-var vmware-format=ova"
+
+### 构建
+* `make build.template.qemu.ubuntu-16.04`构建模板
+* `make build.template.qemu.ubuntu-16.04 VARS="vmware-format=ova"`构建模板，并传递packer参数"-var vmware-format=ova"
+## 自定义镜像
+### 检测
+* `make validate.template.qemu.ubuntu-16.04`构建模板
+* `make validate.template.qemu.ubuntu-16.04 VARS="vmware-format=ova"`构建模板，并传递packer参数"-var vmware-format=ova"
+### 解析
+* `make inspect.template.qemu.ubuntu-16.04`构建模板
+* `make inspect.template.qemu.ubuntu-16.04 VARS="vmware-format=ova"`构建模板，并传递packer参数"-var vmware-format=ova"
+### 构建
+* `make build.custom.kubernetes.qemu.ubuntu-16.04`
+* `make build.cutome.kubernetes.qemu.ubuntu-16.04 VARS="vmware-format=ova"`构建模板，并传递packer参数"-var vmware-format=ova"

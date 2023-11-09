@@ -2,6 +2,17 @@
 # Makefile helper functions for tools
 #
 
+# Specify tools severity, include: BLOCKER_TOOLS, CRITICAL_TOOLS, TRIVIAL_TOOLS.
+# Missing BLOCKER_TOOLS can cause the CI flow execution failed, i.e. `make all` failed.
+# Missing CRITICAL_TOOLS can lead to some necessary operations failed. i.e. `make release` failed.
+# TRIVIAL_TOOLS are Optional tools, missing these tool have no affect.
+BLOCKER_TOOLS ?= packer
+CRITICAL_TOOLS ?=
+# 可选工具集，缺少不影响
+TRIVIAL_TOOLS ?=
+
+PACKER := packer
+
 .PHONY: tools.install
 tools.install: $(addprefix tools.install., $(TOOLS))
 
@@ -27,4 +38,7 @@ install.packer:
 	@chmod +x ./packer
 	@mv ./packer /usr/bin
 
-.PHONY: install.vmware
+
+.PHONY: install.qemu-system-x86_64
+install.emu-system-x86_64:
+	@apt install qemu-system-x86
