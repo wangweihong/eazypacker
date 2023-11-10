@@ -4,13 +4,19 @@ locals {
 
   // 自定义镜像脚本
   custom_image_scripts = var.custom_image_scripts == null ? (
-    var.custom_purpose == "none" ? [
+    var.custom_purpose == null || var.custom_purpose == "none" ? [
+      // just print environment
       "${path.root}/scripts/_common/none.sh"
-      ] : (var.custom_purpose == "kubernetes" ? [] : (
-        var.custom_purpose == "gitlab-runner" ? [] : (
-          var.custom_purpose == "github-selfhost" ? [] : [
-            "${path.root}/scripts/_common/none.sh"
-          ]
+      ] : (
+      var.custom_purpose == "kubernetes" ? [] : (
+        var.custom_purpose == "gitlab-runners" ? [] : (
+          var.custom_purpose == "goss" ? [
+                "${path.root}/scripts/_common/goss.sh"
+          ] : (
+            var.custom_purpose == "github-selfhosts" ? [] : [
+              "${path.root}/scripts/_common/none.sh"
+            ]
+          )
         )
       )
     )
