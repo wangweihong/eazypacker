@@ -150,7 +150,6 @@ build {
       "http_proxy=${var.http_proxy}",
       "https_proxy=${var.https_proxy}",
       "no_proxy=${var.no_proxy}",
-      "pkg_branch=quarterly",
       ] : (
       var.os_name == "solaris" ? [] : [
         "HOME_DIR=/home/vagrant",
@@ -185,7 +184,7 @@ build {
       "distro_name" : var.os_name,
       "distro_version" : var.os_version,
     }
-    output     = "${local.output_directory}/${source.type}-manifest.json"
+    output     = var.custom_purpose == null  ? "${local.output_directory}/${source.type}-manifest.json" :"${local.output_directory}/${var.custom_purpose}-manifest.json"
     strip_path = true
   }
 

@@ -317,7 +317,7 @@ source "vmware-vmx" "vm" {
   format                         = var.vmware_format
   /*----------- Source块通用参数 ---------- */ 
  # output_directory = "${local.output_directory}/${source.type}"
-  output_directory = var.custom_purpose == null || var.custom_purpose == "none" ? "${local.output_directory}/${source.type}" : "${local.output_directory}/${var.custom_purpose}"
+  output_directory = var.custom_purpose == null  ? "${local.output_directory}/${source.type}" : "${local.output_directory}/${var.custom_purpose}"
   shutdown_command = local.shutdown_command
   shutdown_timeout = var.shutdown_timeout
   display_name     = local.vmware_vmx_display_name

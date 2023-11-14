@@ -107,6 +107,13 @@ variable "build_timestamp" {
   description = "描述制品构建日期"
 }
 
+/*----------- 定制相关变量--------------------*/
+variable "kubernetes_version" {
+  type = string 
+  default = "1.18.0"
+  description = "定制镜像的kubernetes版本"
+}
+
 /*----------- 操作系统通用变量 -------------- */
 
 
