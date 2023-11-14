@@ -2,18 +2,20 @@
 /////////////////////// Provisioner脚本 ///////////////////////
 locals {
   no_support_scripts = ["${path.root}/scripts/_common/goss.sh"]
-  goss_scripts = ["${path.root}/scripts/_common/goss.sh"]
+  goss_scripts       = ["${path.root}/scripts/_common/goss.sh"]
   kuberntes_scripts = var.os_name == "ubuntu" ? (
     var.os_version == "16.04" ? [
-        "${path.root}/scripts/kubernetes/install_apt_proxy.sh",
-            "${path.root}/scripts/kubernetes/install_docker.sh",
-            "${path.root}/scripts/kubernetes/config_docker_proxy.sh",
-            "${path.root}/scripts/kubernetes/install_kube_tools.sh",
-            "${path.root}/scripts/kubernetes/install_master.sh",
-            "${path.root}/scripts/kubernetes/cleanup_apt_proxy.sh",
-            "${path.root}/scripts/kubernetes/cleanup_docker_proxy.sh",
-    ]:local.no_support_scripts
-  ): local.no_support_scripts
+      "${path.root}/scripts/_common/install_apt_proxy.sh",
+      "${path.root}/scripts/custom/docker/install_docker.sh",
+      "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
+      "${path.root}/scripts/custom/kubernetes/install_kube_tools.sh",
+   //   "${path.root}/scripts/custom/helm/install_helm.sh",
+      "${path.root}/scripts/custom/kubernetes/install_master.sh",
+      "${path.root}/scripts/custom/docker/cleanup_docker_proxy.sh",
+      "${path.root}/scripts/_common/cleanup_apt_proxy.sh",
+
+    ] : local.no_support_scripts
+  ) : local.no_support_scripts
 
   gitlab_runner_scripts = local.no_support_scripts
   github_runner_scripts = local.no_support_scripts
@@ -22,11 +24,11 @@ locals {
     var.custom_purpose == null || var.custom_purpose == "none" ? [
       "${path.root}/scripts/_common/none.sh"
       ] : (
-        var.custom_purpose == "kubernetes" ? local.kuberntes_scripts:(
-          var.custom_purpose == "gitlab-runner"? local.gitlab_runner_scripts:(
-            var.custom_purpose == "goss"? local.goss_scripts:local.no_support_scripts
-          )
+      var.custom_purpose == "kubernetes" ? local.kuberntes_scripts : (
+        var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_scripts : (
+          var.custom_purpose == "goss" ? local.goss_scripts : local.no_support_scripts
         )
+      )
     )
   ) : var.custom_image_scripts
   // 自定义镜像脚本
