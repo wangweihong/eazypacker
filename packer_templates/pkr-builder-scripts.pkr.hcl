@@ -1,6 +1,7 @@
 
 /////////////////////// Provisioner脚本 ///////////////////////
 locals {
+  no_support_scripts = ["${path.root}/scripts/_common/goss.sh"]
   goss_scripts = ["${path.root}/scripts/_common/goss.sh"]
   kuberntes_scripts = var.os_name == "ubuntu" ? (
     var.os_version == "16.04" ? [
@@ -11,15 +12,11 @@ locals {
             "${path.root}/scripts/kubernetes/install_master.sh",
             "${path.root}/scripts/kubernetes/cleanup_apt_proxy.sh",
             "${path.root}/scripts/kubernetes/cleanup_docker_proxy.sh",
-    ]:[
-      "${path.root}/scripts/_common/no_support.sh"
-    ]
-  ): [
-    "${path.root}/scripts/_common/no_support.sh"
-  ]
+    ]:local.no_support_scripts
+  ): local.no_support_scripts
 
-  gitlab_runner_scripts = ["${path.root}/scripts/_common/no_support.sh"]
-  github_runner_scripts = ["${path.root}/scripts/_common/no_support.sh"]
+  gitlab_runner_scripts = local.no_support_scripts
+  github_runner_scripts = local.no_support_scripts
 
   custom_image_scripts = var.custom_image_scripts == null ? (
     var.custom_purpose == null || var.custom_purpose == "none" ? [
@@ -27,9 +24,7 @@ locals {
       ] : (
         var.custom_purpose == "kubernetes" ? local.kuberntes_scripts:(
           var.custom_purpose == "gitlab-runner"? local.gitlab_runner_scripts:(
-            var.custom_purpose == "goss"? local.goss_scripts:[
-            "${path.root}/scripts/_common/no_support.sh"
-            ]
+            var.custom_purpose == "goss"? local.goss_scripts:local.no_support_scripts
           )
         )
     )
