@@ -129,10 +129,8 @@ ALICLOUD_CUSTOM_VALIDATE_TARGET := $(addprefix validate.custom.$(PURPOSE).aliclo
 ## 	build.custom.PURPOSE.alicloud-ecs.centos-7
 ## 	build.custom.PURPOSE.alicloud-ecs.centos-stream-8
 ## 	build.custom.PURPOSE.alicloud-ecs.centos-stream-9
-## 	build.custom.PURPOSE.alicloud-ecs.ubuntu-16.04
 ## 	build.custom.PURPOSE.alicloud-ecs.ubuntu-20.04
 ## 	build.custom.PURPOSE.alicloud-ecs.ubuntu-22.04
-## 	build.custom.PURPOSE.alicloud-ecs.ubuntu-23.04
 build-alicloud-ecs-custom-all: $(ALICLOUD_CUSTOM_BUILD_TARGET)
 
 ## validate-alicloud-ecs-custom-all: validate custom template.

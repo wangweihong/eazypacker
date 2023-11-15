@@ -54,20 +54,13 @@ build {
 
   # Linux Shell scipts
   provisioner "shell" {
-    environment_vars = var.os_name == "freebsd" ? [
+    environment_vars = [
       "HOME_DIR=/home/vagrant",
       "http_proxy=${var.http_proxy}",
       "https_proxy=${var.https_proxy}",
       "no_proxy=${var.no_proxy}",
-      "pkg_branch=quarterly",
-      ] : (
-      var.os_name == "solaris" ? [] : [
-        "HOME_DIR=/home/vagrant",
-        "http_proxy=${var.http_proxy}",
-        "https_proxy=${var.https_proxy}",
-        "no_proxy=${var.no_proxy}",
-      ]
-    )
+    ]
+
     //运行shell脚本时使用的命令
     //如果 var.os_name 是 "freebsd"，则使用 su 命令以 root 用户身份执行脚本。
     //如果 var.os_name 是 "solaris"，则使用 sudo 命令以 root 用户身份执行脚本。
@@ -113,6 +106,19 @@ build {
     except = var.is_windows ? null : local.golden_image_source_names
   }
 
+  // genenrate manifests to record image build info
+  post-processor "manifest" {
+    custom_data = {
+      "release_version" : var.release_version,
+      "build_timestamp" : formatdate("YYYYMMDDHHMM", timestamp()),
+      "distro_arch" : var.os_arch,
+      "distro_name" : var.os_name,
+      "distro_version" : var.os_version,
+    }
+    output     = "${local.output_directory}/${source.type}-manifest.json"
+    strip_path = true
+  }
+
   # Convert machines to vagrant boxes
   post-processor "vagrant" {
     compression_level    = 9
@@ -132,20 +138,16 @@ build {
 
   # Linux Shell scipts
   provisioner "shell" {
-    environment_vars = var.os_name == "freebsd" ? [
+    environment_vars = [
       "HOME_DIR=/home/vagrant",
       "http_proxy=${var.http_proxy}",
       "https_proxy=${var.https_proxy}",
       "no_proxy=${var.no_proxy}",
-      "pkg_branch=quarterly",
-      ] : (
-      var.os_name == "solaris" ? [] : [
-        "HOME_DIR=/home/vagrant",
-        "http_proxy=${var.http_proxy}",
-        "https_proxy=${var.https_proxy}",
-        "no_proxy=${var.no_proxy}",
-      ]
-    )
+      "OS_VERSION=${var.os_version}",
+      "OS_ARCH=${var.os_arch}",
+      "OS_NAME=${var.os_name}",
+    ]
+
     //运行shell脚本时使用的命令
     //如果 var.os_name 是 "freebsd"，则使用 su 命令以 root 用户身份执行脚本。
     //如果 var.os_name 是 "solaris"，则使用 sudo 命令以 root 用户身份执行脚本。
@@ -172,23 +174,7 @@ build {
       "distro_name" : var.os_name,
       "distro_version" : var.os_version,
     }
-    output     = "${local.output_directory}/${source.type}-manifest.json"
+    output     = var.custom_purpose == null ? "${local.output_directory}/${source.type}-manifest.json" : "${local.output_directory}/${var.custom_purpose}-manifest.json"
     strip_path = true
   }
-
-  // import image to alicloud 
-  // post-processor "alicloud-import" {
-  //   access_key          = var.alicloud_access_key
-  //   secret_key          = var.alicloud_secret_key
-  //   region              = var.alicloud_region
-  //   image_name          = var.alicloud_import_image_name
-  //   image_os_type       = var.is_windows ? "windows" : "linux"
-  //   image_platform      = var.os_name
-  //   image_architecture  = var.os_arch
-  //   format              = var.alicloud_import_format
-  //   oss_bucket_name     = var.alicloud_import_oss_bucket
-  //   keep_input_artifact = var.alicloud_import_keep_input_artifact
-  //   // 没有设置的话则直接忽略掉该post-processor
-  //   except = var.is_alicloud_import ? null : var.custom_image_sources_enabled
-  // }
 }

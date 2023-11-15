@@ -95,16 +95,23 @@ variable "keep_input_artifact" {
   description = "post-processors是否保持原制品"
 }
 
-variable "release_version"{
-  type = string
-  default = ""
+variable "release_version" {
+  type        = string
+  default     = ""
   description = "描述构建版本"
 }
 
 variable "build_timestamp" {
-  type = string
-  default = null
+  type        = string
+  default     = null
   description = "描述制品构建日期"
+}
+
+/*----------- 定制相关变量--------------------*/
+variable "kubernetes_version" {
+  type = string 
+  default = "1.18.0"
+  description = "定制镜像的kubernetes版本"
 }
 
 /*----------- 操作系统通用变量 -------------- */

@@ -1,15 +1,42 @@
 
 /////////////////////// Provisioner脚本 ///////////////////////
 locals {
+  no_support_scripts = ["${path.root}/scripts/_common/goss.sh"]
+  goss_scripts       = ["${path.root}/scripts/_common/goss.sh"]
+  none_scripts = [
+    "${path.root}/scripts/_common/none.sh",
+  ]
+  kuberntes_scripts = var.os_name == "ubuntu" ? (
+    var.os_version == "16.04" ? [
+      "${path.root}/scripts/_common/none.sh",
+      "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
+      "${path.root}/scripts/custom/docker/install_docker.sh",
+      "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
+      "${path.root}/scripts/custom/kubernetes/install_kube_tools.sh",
+      "${path.root}/scripts/custom/helm/install_helm.sh",
+      "${path.root}/scripts/_common/yq.sh",
+      "${path.root}/scripts/custom/kubernetes/prepare_install.sh",
+      "${path.root}/scripts/custom/kubernetes/gen_install_script.sh",
+      "${path.root}/scripts/custom/docker/cleanup_docker_proxy.sh",
+      "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh",
 
-  // 自定义镜像脚本
+    ] : local.no_support_scripts
+  ) : local.no_support_scripts
+
+  gitlab_runner_scripts = local.no_support_scripts
+  github_runner_scripts = local.no_support_scripts
+
   custom_image_scripts = var.custom_image_scripts == null ? (
-    var.custom_purpose == null ? [
-      "${path.root}/scripts/_common/debug.sh"
-      ] : [
-      //TODO: otherpurpose
-    ]
+    var.custom_purpose == null || var.custom_purpose == "none" ? local.none_scripts : (
+      var.custom_purpose == "kubernetes" ? local.kuberntes_scripts : (
+        var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_scripts : (
+          var.custom_purpose == "goss" ? local.goss_scripts : local.no_support_scripts
+        )
+      )
+    )
   ) : var.custom_image_scripts
+  // 自定义镜像脚本
+
 
   // 黄金镜像构建脚本
   gloden_image_scripts = var.gloden_image_scripts == null ? (

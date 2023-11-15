@@ -60,8 +60,9 @@ locals {
   vmware_tools_upload_path = var.vmware_tools_upload_path == null ? (
     var.is_windows ? "c:\\vmware-tools.iso" : "/tmp/vmware-tools.iso"
   ) : var.vmware_tools_upload_path
+  vmware_vmx_display_prefix = var.custom_purpose == null || var.custom_purpose == "none" ? "vmx": var.custom_purpose
   vmware_vmx_display_name = var.vmware_vmx_display_name == null ? (
-    var.os_arch == "x86_64" ? "vmx-${var.os_name}-${var.os_version}-amd64" : "vmx-${var.os_name}-${var.os_version}-${var.os_arch}"
+    var.os_arch == "x86_64" ? "${local.vmware_vmx_display_prefix}-${var.os_name}-${var.os_version}-amd64" : "${local.vmware_vmx_display_prefix}-${var.os_name}-${var.os_version}-${var.os_arch}"
   ) : var.vmware_vmx_display_name
   vmware_vmdk_name = var.vmware_vmdk_name == null ? local.vm_name : var.vmware_vmdk_name
   /*------------ vmware-vmx ----------*/
@@ -314,9 +315,9 @@ source "vmware-vmx" "vm" {
   source_path                    = local.vmware_vmx_source_path
   vmdk_name                      = local.vmware_vmdk_name
   format                         = var.vmware_format
-  /*----------- Source块通用参数 ---------- */
-
-  output_directory = "${local.output_directory}/${source.type}"
+  /*----------- Source块通用参数 ---------- */ 
+ # output_directory = "${local.output_directory}/${source.type}"
+  output_directory = var.custom_purpose == null  ? "${local.output_directory}/${source.type}" : "${local.output_directory}/${var.custom_purpose}"
   shutdown_command = local.shutdown_command
   shutdown_timeout = var.shutdown_timeout
   display_name     = local.vmware_vmx_display_name
