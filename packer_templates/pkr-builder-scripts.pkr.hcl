@@ -13,7 +13,8 @@ locals {
       "${path.root}/scripts/custom/docker/install_docker.sh",
       "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
       "${path.root}/scripts/custom/kubernetes/install_kube_tools.sh",
-      "${path.root}/scripts/custom/helm/install_helm.sh",
+      // install_helm take too long to install. 
+      //"${path.root}/scripts/custom/helm/install_helm.sh",
       "${path.root}/scripts/_common/yq.sh",
       "${path.root}/scripts/custom/kubernetes/prepare_install.sh",
       "${path.root}/scripts/custom/kubernetes/gen_install_script.sh",
