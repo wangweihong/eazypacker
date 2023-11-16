@@ -35,6 +35,12 @@ variable "no_proxy" {
   description = "No Proxy"
 }
 
+variable "use_alicloud" {
+  type       = bool
+  default     = env("use_alicloud")
+  description = "是否使用阿里云源"
+}
+
 variable "golden_image_sources_enabled" {
   type = list(string)
   default = [

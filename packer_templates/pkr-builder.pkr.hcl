@@ -146,6 +146,7 @@ build {
       "OS_VERSION=${var.os_version}",
       "OS_ARCH=${var.os_arch}",
       "OS_NAME=${var.os_name}",
+      "USE_ALICLOUD=${var.use_alicloud}",
     ]
 
     //运行shell脚本时使用的命令
