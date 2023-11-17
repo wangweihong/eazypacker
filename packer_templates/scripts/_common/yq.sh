@@ -7,7 +7,7 @@ set -x
 VERSION=v4.2.0
 BINARY=yq_linux_amd64
 
-if [  -z ${OS_ARCH} ] && [ ${OS_ARCH} == "aarch" ]; then
+if [  -n "${OS_ARCH}" ] && [ "${OS_ARCH}" = "aarch" ]; then
     BINARY=yq_linux_${OS_ARCH}
 fi
 

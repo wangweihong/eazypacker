@@ -1,19 +1,51 @@
 
 /////////////////////// Provisioner脚本 ///////////////////////
 locals {
-  no_support_scripts = ["${path.root}/scripts/_common/goss.sh"]
+  /*--------------  env -------------------*/
+  common_env = [
+    "HOME_DIR=/home/vagrant",
+    "http_proxy=${var.http_proxy}",
+    "https_proxy=${var.https_proxy}",
+    "no_proxy=${var.no_proxy}",
+    "OS_VERSION=${var.os_version}",
+    "OS_ARCH=${var.os_arch}",
+    "OS_NAME=${var.os_name}",
+  ]
+  kubernetes_env = [
+    "USE_ALICLOUD=${var.use_alicloud}",
+  ]
+  golang_env = [
+    "GO_VERSION=${var.go_version}",
+  ]
+  gitlab_runner_env = [
+    "USE_ALICLOUD=${var.use_alicloud}",
+  ]
+
+  custom_env = var.custom_purpose == "kubernetes" ? local.kubernetes_env : (
+    var.custom_purpose == "golang" ? local.golang_env : (
+      var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_env : []
+    )
+  )
+  /*--------------  scripts -------------------*/
+  common_scripts = [
+    "${path.root}/scripts/_common/none.sh",
+  ]
+  no_support_scripts = ["${path.root}/scripts/_common/no_support.sh"]
   goss_scripts       = ["${path.root}/scripts/_common/goss.sh"]
   none_scripts = [
     "${path.root}/scripts/_common/none.sh",
   ]
+  golang_scripts        = ["${path.root}/scripts/custom/golang/install.sh"]
+  gitlab_runner_scripts = ["${path.root}/scripts/custom/gitlab/runner/install.sh"]
+  github_runner_scripts = local.no_support_scripts
   kuberntes_scripts = var.os_name == "ubuntu" ? (
     var.os_version == "16.04" ? [
-      "${path.root}/scripts/_common/none.sh",
       "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
       "${path.root}/scripts/custom/docker/install_docker.sh",
       "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
       "${path.root}/scripts/custom/kubernetes/install_kube_tools.sh",
-      "${path.root}/scripts/custom/helm/install_helm.sh",
+      // install_helm take too long to install. 
+      //"${path.root}/scripts/custom/helm/install_helm.sh",
       "${path.root}/scripts/_common/yq.sh",
       "${path.root}/scripts/custom/kubernetes/prepare_install.sh",
       "${path.root}/scripts/custom/kubernetes/gen_install_script.sh",
@@ -23,14 +55,14 @@ locals {
     ] : local.no_support_scripts
   ) : local.no_support_scripts
 
-  gitlab_runner_scripts = local.no_support_scripts
-  github_runner_scripts = local.no_support_scripts
 
   custom_image_scripts = var.custom_image_scripts == null ? (
     var.custom_purpose == null || var.custom_purpose == "none" ? local.none_scripts : (
       var.custom_purpose == "kubernetes" ? local.kuberntes_scripts : (
         var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_scripts : (
-          var.custom_purpose == "goss" ? local.goss_scripts : local.no_support_scripts
+          var.custom_purpose == "goss" ? local.goss_scripts : (
+            var.custom_purpose == "golang" ? local.golang_scripts : local.no_support_scripts
+          )
         )
       )
     )

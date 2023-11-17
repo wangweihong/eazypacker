@@ -35,6 +35,12 @@ variable "no_proxy" {
   description = "No Proxy"
 }
 
+variable "use_alicloud" {
+  type       = string
+  default     = env("use_alicloud")
+  description = "是否使用阿里云源"
+}
+
 variable "golden_image_sources_enabled" {
   type = list(string)
   default = [
@@ -112,6 +118,12 @@ variable "kubernetes_version" {
   type = string 
   default = "1.18.0"
   description = "定制镜像的kubernetes版本"
+}
+
+variable "go_version" {
+  type = string 
+  default = "1.19.13"
+  description = "定制镜像的golang版本"
 }
 
 /*----------- 操作系统通用变量 -------------- */

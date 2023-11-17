@@ -138,15 +138,7 @@ build {
 
   # Linux Shell scipts
   provisioner "shell" {
-    environment_vars = [
-      "HOME_DIR=/home/vagrant",
-      "http_proxy=${var.http_proxy}",
-      "https_proxy=${var.https_proxy}",
-      "no_proxy=${var.no_proxy}",
-      "OS_VERSION=${var.os_version}",
-      "OS_ARCH=${var.os_arch}",
-      "OS_NAME=${var.os_name}",
-    ]
+    environment_vars = concat(local.common_env , local.custom_env)
 
     //运行shell脚本时使用的命令
     //如果 var.os_name 是 "freebsd"，则使用 su 命令以 root 用户身份执行脚本。
@@ -159,7 +151,8 @@ build {
     //在执行脚本后，预期会断开与远程主机的连接
     expect_disconnect = true
     //要执行的脚本列表
-    scripts = local.custom_image_scripts
+    //通过concat连接通用脚本
+    scripts = concat(local.common_scripts , local.custom_image_scripts)
     //避免在windows执行
     except = var.is_windows ? local.custom_image_source_names : null
   }
