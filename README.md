@@ -25,7 +25,11 @@
 
 ## 构建vmware-vmx的Ubuntu 16.04镜像
 `PACKER_CACHE_DIR=/f/build_cache packer build  -on-error=ask -only=*.vmware-vmx.vm -var custom_purpose=goss -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build   ./packer_templates/`
-*  `is_golden_image_build=false`: 必传，表明当前为基于黄金镜像构建其他镜像
+*  `custom_purpose=goss`: 必传，表明当基于黄金镜像的构建目的。根据不同的目的执行不同的脚本
+    * goss: goss测试用
+    * none: 只打印环境变量，测试用
+    * docker: 安装docker
+    * kubernetes: 安装kubernetes预部署环境. 包括依赖镜像、kubelet等工具
 * `-var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl`: 如果不通过`vmware_vmx_source_path`指定黄金镜像路径时，默认是源为`${local.output_directory}/${var.os_name}/${var.os_type}/${var.os_arch}.vmx`
 
 ## 构建alicloud-ecs镜像
