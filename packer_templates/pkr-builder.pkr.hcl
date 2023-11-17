@@ -138,16 +138,7 @@ build {
 
   # Linux Shell scipts
   provisioner "shell" {
-    environment_vars = [
-      "HOME_DIR=/home/vagrant",
-      "http_proxy=${var.http_proxy}",
-      "https_proxy=${var.https_proxy}",
-      "no_proxy=${var.no_proxy}",
-      "OS_VERSION=${var.os_version}",
-      "OS_ARCH=${var.os_arch}",
-      "OS_NAME=${var.os_name}",
-      "USE_ALICLOUD=${var.use_alicloud}",
-    ]
+    environment_vars = concat(local.common_env , local.custom_env)
 
     //运行shell脚本时使用的命令
     //如果 var.os_name 是 "freebsd"，则使用 su 命令以 root 用户身份执行脚本。

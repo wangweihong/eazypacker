@@ -1,6 +1,23 @@
 
 /////////////////////// Provisioner脚本 ///////////////////////
 locals {
+    /*--------------  env -------------------*/
+  common_env = [
+      "HOME_DIR=/home/vagrant",
+      "http_proxy=${var.http_proxy}",
+      "https_proxy=${var.https_proxy}",
+      "no_proxy=${var.no_proxy}",
+      "OS_VERSION=${var.os_version}",
+      "OS_ARCH=${var.os_arch}",
+      "OS_NAME=${var.os_name}",
+  ]
+
+  kubernetes_env = [
+      "USE_ALICLOUD=${var.use_alicloud}",
+  ]
+
+  custom_env =var.custom_purpose == "kubernetes"? local.kubernetes_env: []
+  /*--------------  scripts -------------------*/
   common_scripts = [
     "${path.root}/scripts/_common/none.sh",
   ]
@@ -9,6 +26,7 @@ locals {
   none_scripts = [
     "${path.root}/scripts/_common/none.sh",
   ]
+  golang_scripts = []
   kuberntes_scripts = var.os_name == "ubuntu" ? (
     var.os_version == "16.04" ? [
       "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
