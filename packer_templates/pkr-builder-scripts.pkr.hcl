@@ -1,14 +1,16 @@
 
 /////////////////////// Provisioner脚本 ///////////////////////
 locals {
-  no_support_scripts = ["${path.root}/scripts/_common/goss.sh"]
+  common_scripts = [
+    "${path.root}/scripts/_common/none.sh",
+  ]
+  no_support_scripts = ["${path.root}/scripts/_common/no_support.sh"]
   goss_scripts       = ["${path.root}/scripts/_common/goss.sh"]
   none_scripts = [
     "${path.root}/scripts/_common/none.sh",
   ]
   kuberntes_scripts = var.os_name == "ubuntu" ? (
     var.os_version == "16.04" ? [
-      "${path.root}/scripts/_common/none.sh",
       "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
       "${path.root}/scripts/custom/docker/install_docker.sh",
       "${path.root}/scripts/custom/docker/config_docker_proxy.sh",

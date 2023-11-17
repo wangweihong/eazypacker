@@ -160,7 +160,8 @@ build {
     //在执行脚本后，预期会断开与远程主机的连接
     expect_disconnect = true
     //要执行的脚本列表
-    scripts = local.custom_image_scripts
+    //通过concat连接通用脚本
+    scripts = concat(local.common_scripts , local.custom_image_scripts)
     //避免在windows执行
     except = var.is_windows ? local.custom_image_source_names : null
   }
