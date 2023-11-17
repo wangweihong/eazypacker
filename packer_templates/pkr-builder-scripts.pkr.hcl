@@ -1,22 +1,26 @@
 
 /////////////////////// Provisioner脚本 ///////////////////////
 locals {
-    /*--------------  env -------------------*/
+  /*--------------  env -------------------*/
   common_env = [
-      "HOME_DIR=/home/vagrant",
-      "http_proxy=${var.http_proxy}",
-      "https_proxy=${var.https_proxy}",
-      "no_proxy=${var.no_proxy}",
-      "OS_VERSION=${var.os_version}",
-      "OS_ARCH=${var.os_arch}",
-      "OS_NAME=${var.os_name}",
+    "HOME_DIR=/home/vagrant",
+    "http_proxy=${var.http_proxy}",
+    "https_proxy=${var.https_proxy}",
+    "no_proxy=${var.no_proxy}",
+    "OS_VERSION=${var.os_version}",
+    "OS_ARCH=${var.os_arch}",
+    "OS_NAME=${var.os_name}",
   ]
-
   kubernetes_env = [
-      "USE_ALICLOUD=${var.use_alicloud}",
+    "USE_ALICLOUD=${var.use_alicloud}",
+  ]
+  golang_env = [
+    "GO_VERSION=${var.go_version}",
   ]
 
-  custom_env =var.custom_purpose == "kubernetes"? local.kubernetes_env: []
+  custom_env = var.custom_purpose == "kubernetes" ? local.kubernetes_env : (
+    var.custom_purpose == "golang" ? local.golang_env : []
+  )
   /*--------------  scripts -------------------*/
   common_scripts = [
     "${path.root}/scripts/_common/none.sh",
@@ -26,7 +30,7 @@ locals {
   none_scripts = [
     "${path.root}/scripts/_common/none.sh",
   ]
-  golang_scripts = []
+  golang_scripts = ["${path.root}/scripts/custom/golang/install.sh"]
   kuberntes_scripts = var.os_name == "ubuntu" ? (
     var.os_version == "16.04" ? [
       "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
@@ -51,7 +55,9 @@ locals {
     var.custom_purpose == null || var.custom_purpose == "none" ? local.none_scripts : (
       var.custom_purpose == "kubernetes" ? local.kuberntes_scripts : (
         var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_scripts : (
-          var.custom_purpose == "goss" ? local.goss_scripts : local.no_support_scripts
+          var.custom_purpose == "goss" ? local.goss_scripts : (
+            var.custom_purpose == "golang" ? local.golang_scripts : local.no_support_scripts
+          )
         )
       )
     )

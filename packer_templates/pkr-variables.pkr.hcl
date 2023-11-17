@@ -120,6 +120,12 @@ variable "kubernetes_version" {
   description = "定制镜像的kubernetes版本"
 }
 
+variable "go_version" {
+  type = string 
+  default = "1.19.13"
+  description = "定制镜像的golang版本"
+}
+
 /*----------- 操作系统通用变量 -------------- */
 
 
