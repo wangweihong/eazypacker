@@ -36,7 +36,7 @@ variable "no_proxy" {
 }
 
 variable "use_alicloud" {
-  type       = bool
+  type       = string
   default     = env("use_alicloud")
   description = "是否使用阿里云源"
 }
