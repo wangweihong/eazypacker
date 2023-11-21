@@ -13,6 +13,7 @@ locals {
   ]
   kubernetes_env = [
     "USE_ALICLOUD=${var.use_alicloud}",
+    "IS_MASTER=${var.is_kubernetes_master}",
   ]
   golang_env = [
     "GO_VERSION=${var.go_version}",
@@ -38,7 +39,7 @@ locals {
   golang_scripts        = ["${path.root}/scripts/custom/golang/install.sh"]
   gitlab_runner_scripts = ["${path.root}/scripts/custom/gitlab/runner/install.sh"]
   github_runner_scripts = local.no_support_scripts
-  kuberntes_scripts = var.os_name == "ubuntu" ? (
+  kubernetes_scripts = var.os_name == "ubuntu" ? (
     var.os_version == "16.04" ? [
       "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
       "${path.root}/scripts/custom/docker/install_docker.sh",
@@ -51,14 +52,13 @@ locals {
       "${path.root}/scripts/custom/kubernetes/gen_install_script.sh",
       "${path.root}/scripts/custom/docker/cleanup_docker_proxy.sh",
       "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh",
-
     ] : local.no_support_scripts
   ) : local.no_support_scripts
 
 
   custom_image_scripts = var.custom_image_scripts == null ? (
     var.custom_purpose == null || var.custom_purpose == "none" ? local.none_scripts : (
-      var.custom_purpose == "kubernetes" ? local.kuberntes_scripts : (
+      var.custom_purpose == "kubernetes" ? local.kubernetes_scripts : (
         var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_scripts : (
           var.custom_purpose == "goss" ? local.goss_scripts : (
             var.custom_purpose == "golang" ? local.golang_scripts : local.no_support_scripts
