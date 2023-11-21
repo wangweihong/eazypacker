@@ -120,6 +120,12 @@ variable "kubernetes_version" {
   description = "定制镜像的kubernetes版本"
 }
 
+variable "is_kubernetes_master" {
+  type = string 
+  description = "当前镜像是否kubernetes主节点。默认为工作节点"
+  default     = env("is_kubernetes_master")
+}
+
 variable "go_version" {
   type = string 
   default = "1.19.13"

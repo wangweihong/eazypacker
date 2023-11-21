@@ -3,7 +3,7 @@ set -e
 set -x
 
 # 'EOF'关闭转义
-cat >/usr/bin/kubelet-pre-start.sh << 'END'
+cat >/usr/bin/kubelet-pre-start.sh <<'END'
 #!/bin/bash
 # Open ipvs
 modprobe -- ip_vs
@@ -66,20 +66,19 @@ systemctl daemon-reload
 systemctl restart kubelet
 systemctl restart docker
 
-
 # 先尝试拉取k8s 镜像
 kubeadm config images pull
 
 # 拉取网络插件相关镜像
-curl https://docs.projectcalico.org/archive/v3.14/manifests/calico.yaml > ./calico.yaml
+curl https://docs.projectcalico.org/archive/v3.14/manifests/calico.yaml >./calico.yaml
 # 从yaml中提取所有的镜像
 # 注意不要用containers[*],会报Error: '.' expects 2 args but there is 1
 images=$(yq eval-all '.spec.template.spec.containers[].image' ./calico.yaml)
 for image in $images; do
-    if [ $image != "---" ]; then
-        echo "pull image $image"
-        docker pull "$image"
-    fi
+  if [ $image != "---" ]; then
+    echo "pull image $image"
+    docker pull "$image"
+  fi
 
 done
 
