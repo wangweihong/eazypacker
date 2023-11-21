@@ -39,6 +39,8 @@ locals {
   golang_scripts        = ["${path.root}/scripts/custom/golang/install.sh"]
   gitlab_runner_scripts = ["${path.root}/scripts/custom/gitlab/runner/install.sh"]
   github_runner_scripts = local.no_support_scripts
+
+  k3s_scripts           = ["${path.root}/scripts/custom/k3s/install.sh"]
   kubernetes_scripts = var.os_name == "ubuntu" ? (
     var.os_version == "16.04" ? [
       "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
@@ -61,7 +63,9 @@ locals {
       var.custom_purpose == "kubernetes" ? local.kubernetes_scripts : (
         var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_scripts : (
           var.custom_purpose == "goss" ? local.goss_scripts : (
-            var.custom_purpose == "golang" ? local.golang_scripts : local.no_support_scripts
+            var.custom_purpose == "k3s" ? local.k3s_scripts : (
+              var.custom_purpose == "golang" ? local.golang_scripts : local.no_support_scripts
+            )
           )
         )
       )
