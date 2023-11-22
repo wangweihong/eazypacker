@@ -26,10 +26,17 @@ locals {
     "DATABASE_VERSION=${var.database_version}",
   ]
 
+  iac_env = [
+    "PULUMI_VERSION=${var.pulumi_version}",
+    "TERRAFORM_VERSION=${var.terraform_version}",
+  ]
+
   custom_env = var.custom_purpose == "kubernetes" ? local.kubernetes_env : (
     var.custom_purpose == "golang" ? local.golang_env : (
       var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_env : (
-        var.custom_purpose == "database" ? local.database_env: []
+        var.custom_purpose == "database" ? local.database_env : (
+          var.custom_purpose == "iac" ? local.iac_env : []
+        )
       )
     )
   )
@@ -45,9 +52,12 @@ locals {
   golang_scripts        = ["${path.root}/scripts/custom/golang/install.sh"]
   gitlab_runner_scripts = ["${path.root}/scripts/custom/gitlab/runner/install.sh"]
   github_runner_scripts = local.no_support_scripts
-  database_scripts = ["${path.root}/scripts/custom/database/${var.database_type}/install_${var.database_version}.sh"]
-
-  k3s_scripts           = ["${path.root}/scripts/custom/k3s/install.sh"]
+  database_scripts      = ["${path.root}/scripts/custom/database/${var.database_type}/install_${var.database_version}.sh"]
+  iac_scripts = [
+    "${path.root}/scripts/custom/iac/pulumi/install.sh",
+    "${path.root}/scripts/custom/iac/terraform/install.sh",
+  ]
+  k3s_scripts = ["${path.root}/scripts/custom/k3s/install.sh"]
   kubernetes_scripts = var.os_name == "ubuntu" ? (
     var.os_version == "16.04" ? [
       "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
@@ -71,8 +81,10 @@ locals {
         var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_scripts : (
           var.custom_purpose == "goss" ? local.goss_scripts : (
             var.custom_purpose == "k3s" ? local.k3s_scripts : (
-              var.custom_purpose == "golang" ? local.golang_scripts :(
-                var.custom_purpose == "database" ?local.database_scripts : local.no_support_scripts
+              var.custom_purpose == "golang" ? local.golang_scripts : (
+                var.custom_purpose == "database" ? local.database_scripts : (
+                  var.custom_purpose == "iac" ? local.iac_scripts : local.no_support_scripts
+                )
               )
             )
           )

@@ -145,6 +145,15 @@ variable "database_version" {
   description = "数据库版本"
 }
 
+variable "pulumi_version" {
+  default = "3.94.2"
+  description = "IaC工具pulumi版本"
+}
+
+variable "terraform_version" {
+  default = "1.6.4"
+  description = "IaC工具terraform版本"
+}
 
 /*----------- 操作系统通用变量 -------------- */
 
