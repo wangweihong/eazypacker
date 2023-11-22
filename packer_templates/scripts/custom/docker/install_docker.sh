@@ -2,6 +2,12 @@
 set -e
 set -x
 
+# TODO: support other os 
+if [ ${OS_NAME} != 'ubuntu' ]; then
+  echo "not supported on os ${OS_NAME}"
+  exit 1
+fi
+
 # fix error below
 # Could not get lock /var/lib/dpkg/lock-frontend - open (11: Resource temporarily unavailable)
 # Unable to acquire the dpkg frontend lock (/var/lib/dpkg/lock-frontend), is another process using it?
@@ -38,5 +44,9 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io -y
 fi
 # Install Docker Compose
+curl -L https://github.com/docker/compose/releases/download/1.20.1/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+chmod +x /usr/local/bin/docker-compose
+
+# Install Docker buildx
 curl -L https://github.com/docker/compose/releases/download/1.20.1/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
