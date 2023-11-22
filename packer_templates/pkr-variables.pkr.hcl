@@ -132,6 +132,20 @@ variable "go_version" {
   description = "定制镜像的golang版本"
 }
 
+
+variable "database_type" {
+  type = string 
+  default = "postgresql"
+  description = "数据库"
+}
+
+variable "database_version" {
+  type = string 
+  default = "14"
+  description = "数据库版本"
+}
+
+
 /*----------- 操作系统通用变量 -------------- */
 
 
@@ -402,7 +416,6 @@ variable "vmware_vmdk_name" {
 variable "vmware_format" {
   type    = string
   default = null
-  //default = "ova"
   // 注意如果是ova必须安装ovftool工具,且ovftool程序在系统PATH路径上
   // format = "ova"
   description = "输出格式"

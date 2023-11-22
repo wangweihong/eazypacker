@@ -21,10 +21,16 @@ locals {
   gitlab_runner_env = [
     "USE_ALICLOUD=${var.use_alicloud}",
   ]
+  database_env = [
+    "DATABASE_TYPE=${var.database_type}",
+    "DATABASE_VERSION=${var.database_version}",
+  ]
 
   custom_env = var.custom_purpose == "kubernetes" ? local.kubernetes_env : (
     var.custom_purpose == "golang" ? local.golang_env : (
-      var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_env : []
+      var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_env : (
+        var.custom_purpose == "database" ? local.database_env: []
+      )
     )
   )
   /*--------------  scripts -------------------*/
@@ -39,6 +45,7 @@ locals {
   golang_scripts        = ["${path.root}/scripts/custom/golang/install.sh"]
   gitlab_runner_scripts = ["${path.root}/scripts/custom/gitlab/runner/install.sh"]
   github_runner_scripts = local.no_support_scripts
+  database_scripts = ["${path.root}/scripts/custom/database/${var.database_type}/install_${var.database_version}.sh"]
 
   k3s_scripts           = ["${path.root}/scripts/custom/k3s/install.sh"]
   kubernetes_scripts = var.os_name == "ubuntu" ? (
@@ -64,7 +71,9 @@ locals {
         var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_scripts : (
           var.custom_purpose == "goss" ? local.goss_scripts : (
             var.custom_purpose == "k3s" ? local.k3s_scripts : (
-              var.custom_purpose == "golang" ? local.golang_scripts : local.no_support_scripts
+              var.custom_purpose == "golang" ? local.golang_scripts :(
+                var.custom_purpose == "database" ?local.database_scripts : local.no_support_scripts
+              )
             )
           )
         )
