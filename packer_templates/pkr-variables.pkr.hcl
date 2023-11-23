@@ -146,13 +146,28 @@ variable "database_version" {
 }
 
 variable "pulumi_version" {
+  type = string
   default = "3.94.2"
   description = "IaC工具pulumi版本"
 }
 
 variable "terraform_version" {
+  type = string 
   default = "1.6.4"
   description = "IaC工具terraform版本"
+}
+
+
+variable "harbor_domain" {
+  type = string 
+  default = "master.harbor.wang"
+  description = "harbor域名"
+}
+
+variable "harbor_version" {
+  type = string 
+  default = "2.9.1"
+  description = "harbor版本"
 }
 
 /*----------- 操作系统通用变量 -------------- */

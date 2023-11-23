@@ -10,7 +10,12 @@ cat >/etc/kubetool/install_kube_master.sh <<'EOF'
 set -e
 set -x 
 
-localIP=`/sbin/ifconfig eth0 | awk -F ' *|:' '/inet addr/{print $4}'`
+# newer system doesn't has ifconfig
+if command -v ifconfig &> /dev/null; then
+    localIP=$(ifconfig eth0 | awk '/inet /{print $2}' | cut -d':' -f2)
+else
+    localIP=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+fi
 
 kubeadm init --apiserver-advertise-address=$localIP
 
@@ -34,7 +39,8 @@ EOF
 chmod +x /etc/kubetool/install_kube_master.sh
 
 # if custom master image, enable auto install service
-if [ -n "${IS_MASTER}" ] && [ "${IS_MASTER}" = "true" ]; then
+# "${IS_MASTER+isset}" = "isset" 是为了避免IS_MASTER没有设置时直接出错，而非判定为false
+if [ "${IS_MASTER+isset}" = "isset" ] && [ "${IS_MASTER}" = "true" ]; then
 
     # /etc/systemd/system/install_kubernetes_once.service
     cat >/etc/systemd/system/install_kubernetes_once.service <<'EOF'

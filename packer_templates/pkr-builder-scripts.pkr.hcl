@@ -25,7 +25,10 @@ locals {
     "DATABASE_TYPE=${var.database_type}",
     "DATABASE_VERSION=${var.database_version}",
   ]
-
+  harbor_env = [
+    "HARBOR_DOMAIN=${var.harbor_domain}",
+    "HARBOR_VERSION=${var.harbor_version}",
+  ]
   iac_env = [
     "PULUMI_VERSION=${var.pulumi_version}",
     "TERRAFORM_VERSION=${var.terraform_version}",
@@ -35,7 +38,9 @@ locals {
     var.custom_purpose == "golang" ? local.golang_env : (
       var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_env : (
         var.custom_purpose == "database" ? local.database_env : (
-          var.custom_purpose == "iac" ? local.iac_env : []
+          var.custom_purpose == "iac" ? local.iac_env : (
+            var.custom_purpose == "harbor" ? local.harbor_env : []
+          )
         )
       )
     )
@@ -57,7 +62,23 @@ locals {
     "${path.root}/scripts/custom/iac/pulumi/install.sh",
     "${path.root}/scripts/custom/iac/terraform/install.sh",
   ]
-  k3s_scripts = ["${path.root}/scripts/custom/k3s/install.sh"]
+
+  pre_docker_scripts = var.os_name == "ubuntu" ? ( [
+    "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
+    "${path.root}/scripts/custom/docker/install_docker.sh",
+    "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
+  ]): local.no_support_scripts
+  post_docker_scripts = var.os_name == "ubuntu" ? ([
+          "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
+            "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"
+  ]): local.no_support_scripts
+
+  harbor_scripts = concat(
+    local.pre_docker_scripts,
+    ["${path.root}/scripts/custom/harbor/install.sh"],
+    local.post_docker_scripts)
+  
+  k3s_scripts    = ["${path.root}/scripts/custom/k3s/install.sh"]
   kubernetes_scripts = var.os_name == "ubuntu" ? (
     var.os_version == "16.04" ? [
       "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
@@ -83,7 +104,9 @@ locals {
             var.custom_purpose == "k3s" ? local.k3s_scripts : (
               var.custom_purpose == "golang" ? local.golang_scripts : (
                 var.custom_purpose == "database" ? local.database_scripts : (
-                  var.custom_purpose == "iac" ? local.iac_scripts : local.no_support_scripts
+                  var.custom_purpose == "iac" ? local.iac_scripts : (
+                    var.custom_purpose == "harbor" ? local.harbor_scripts : local.no_support_scripts
+                  )
                 )
               )
             )
