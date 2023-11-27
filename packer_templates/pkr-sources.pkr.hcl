@@ -70,7 +70,7 @@ locals {
   vmware_vmx_source_file_format = var.vmware_vmx_source_file_format == null ? "vmx" : var.vmware_vmx_source_file_format
   vmware_vmx_source_directory   = var.vmware_vmx_source_directory == null ? "${local.output_directory}/vmware-iso" : var.vmware_vmx_source_directory
   vmware_vmx_source_file_name   = var.vmware_vmx_source_file_name == null ? "${local.vm_name}" : var.vmware_vmx_source_file_name
-  vmware_vmx_source_path        = var.vmware_vmx_source_path == null ? "${local.vmware_vmx_source_directory}/${local.vmware_vmx_source_file_name}.${local.vmware_vmx_source_file_format}" : var.vmware_vmx_source
+  vmware_vmx_source_path        = var.vmware_vmx_source_path == null ? "${local.vmware_vmx_source_directory}/${local.vmware_vmx_source_file_name}.${local.vmware_vmx_source_file_format}" : var.vmware_vmx_source_path
   /* --------- Source块 ------------*/
   default_boot_wait = var.default_boot_wait == null ? (
     var.is_windows ? "60s" : "5s"

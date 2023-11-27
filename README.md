@@ -31,7 +31,7 @@
     * docker: 安装docker
     * kubernetes: 安装kubernetes预部署环境. 包括依赖镜像、kubelet等工具
 * `-var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl`: 如果不通过`vmware_vmx_source_path`指定黄金镜像路径时，默认是源为`${local.output_directory}/${var.os_name}/${var.os_type}/${var.os_arch}.vmx`
-
+    * 指定源构建镜像`PACKER_CACHE_DIR=/f/build_cache packer build  -on-error=ask -only=*.vmware-vmx.vm -var custom_purpose=argocd -var-file ./os_pkrvars/ubuntu/ubuntu-20.04-x86_64.pkrvars.hcl -var output_directory=/f/build  -var vmware_vmx_source_path=/f/build/ubuntu/20.04/x86_64/kubernetes/ubuntu-20.04-amd64.vmx ./packer_templates/`
 ## 构建alicloud-ecs镜像
 1.  配置账号密码
     ```

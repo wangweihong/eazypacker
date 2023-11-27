@@ -57,41 +57,41 @@ locals {
   ]
   golang_scripts        = ["${path.root}/scripts/custom/golang/install.sh"]
   gitlab_runner_scripts = ["${path.root}/scripts/custom/gitlab/runner/install.sh"]
-  github_runner_scripts = local.no_support_scripts
+  argocd_scripts        = ["${path.root}/scripts/custom/cicd/argocd/install.sh"]
   database_scripts      = ["${path.root}/scripts/custom/database/${var.database_type}/install_${var.database_version}.sh"]
   iac_scripts = [
     "${path.root}/scripts/custom/iac/pulumi/install.sh",
     "${path.root}/scripts/custom/iac/terraform/install.sh",
   ]
 
-  pre_docker_scripts = var.os_name == "ubuntu" ? ( [
+  pre_docker_scripts = var.os_name == "ubuntu" ? ([
     "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
     "${path.root}/scripts/custom/docker/install_docker.sh",
     "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
-  ]): local.no_support_scripts
+  ]) : local.no_support_scripts
   post_docker_scripts = var.os_name == "ubuntu" ? ([
-          "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
-            "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"
-  ]): local.no_support_scripts
+    "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
+    "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"
+  ]) : local.no_support_scripts
 
   harbor_scripts = concat(
     local.pre_docker_scripts,
     ["${path.root}/scripts/custom/harbor/install.sh"],
-    local.post_docker_scripts)
-  
-  k3s_scripts    = ["${path.root}/scripts/custom/k3s/install.sh"]
+  local.post_docker_scripts)
+
+  k3s_scripts = ["${path.root}/scripts/custom/k3s/install.sh"]
   kubernetes_scripts = var.os_name == "ubuntu" ? [
-      "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
-      "${path.root}/scripts/custom/docker/install_docker.sh",
-      "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
-      "${path.root}/scripts/custom/kubernetes/install_kube_tools.sh",
-      "${path.root}/scripts/custom/helm/install_helm.sh",
-      "${path.root}/scripts/_common/yq.sh",
-      "${path.root}/scripts/custom/kubernetes/prepare_install.sh",
-      "${path.root}/scripts/custom/kubernetes/gen_install_script.sh",
-      "${path.root}/scripts/custom/docker/cleanup_docker_proxy.sh",
-      "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh",
-  ]: local.no_support_scripts
+    "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
+    "${path.root}/scripts/custom/docker/install_docker.sh",
+    "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
+    "${path.root}/scripts/custom/kubernetes/install_kube_tools.sh",
+    "${path.root}/scripts/custom/helm/install_helm.sh",
+    "${path.root}/scripts/_common/yq.sh",
+    "${path.root}/scripts/custom/kubernetes/prepare_install.sh",
+    "${path.root}/scripts/custom/kubernetes/gen_install_script.sh",
+    "${path.root}/scripts/custom/docker/cleanup_docker_proxy.sh",
+    "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh",
+  ] : local.no_support_scripts
 
 
   custom_image_scripts = var.custom_image_scripts == null ? (
@@ -103,7 +103,9 @@ locals {
               var.custom_purpose == "golang" ? local.golang_scripts : (
                 var.custom_purpose == "database" ? local.database_scripts : (
                   var.custom_purpose == "iac" ? local.iac_scripts : (
-                    var.custom_purpose == "harbor" ? local.harbor_scripts : local.no_support_scripts
+                    var.custom_purpose == "harbor" ? local.harbor_scripts : (
+                      var.custom_purpose == "argocd" ? local.argocd_scripts : local.no_support_scripts
+                    )
                   )
                 )
               )
