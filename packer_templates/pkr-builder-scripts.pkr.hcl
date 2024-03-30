@@ -62,6 +62,11 @@ locals {
     "${path.root}/scripts/custom/iac/pulumi/install.sh",
     "${path.root}/scripts/custom/iac/terraform/install.sh",
   ]
+  
+  docker_scripts =concat(
+    local.pre_docker_scripts,
+    ["${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"]
+  )
 
   pre_docker_scripts = var.os_name == "ubuntu" ? ( [
     "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
@@ -105,7 +110,9 @@ locals {
               var.custom_purpose == "golang" ? local.golang_scripts : (
                 var.custom_purpose == "database" ? local.database_scripts : (
                   var.custom_purpose == "iac" ? local.iac_scripts : (
-                    var.custom_purpose == "harbor" ? local.harbor_scripts : local.no_support_scripts
+                    var.custom_purpose == "harbor" ? local.harbor_scripts : (
+                      var.custom_purpose == "docker" ? local.docker_scripts : local.no_support_scripts
+                    )
                   )
                 )
               )
