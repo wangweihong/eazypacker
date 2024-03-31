@@ -120,10 +120,16 @@ variable "kubernetes_version" {
   description = "定制镜像的kubernetes版本"
 }
 
-variable "is_kubernetes_master" {
+variable "helm_version" {
   type = string 
-  description = "当前镜像是否kubernetes主节点。默认为工作节点"
-  default     = env("is_kubernetes_master")
+  default = "3.13.2"
+  description = "定制镜像的helm版本"
+}
+
+variable "is_kubernetes_worker" {
+  type = string 
+  description = "当前镜像是否kubernetes工作节点。默认为主节点"
+  default     = env("is_kubernetes_worker")
 }
 
 variable "go_version" {

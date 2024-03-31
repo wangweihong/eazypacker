@@ -39,8 +39,10 @@ EOF
 chmod +x /etc/kubetool/install_kube_master.sh
 
 # if custom master image, enable auto install service
-# "${IS_MASTER+isset}" = "isset" 是为了避免IS_MASTER没有设置时直接出错，而非判定为false
-if [ "${IS_MASTER+isset}" = "isset" ] && [ "${IS_MASTER}" = "true" ]; then
+# "${IS_WORKER+isset}" = "isset" 是为了避免IS_MASTER没有设置时直接出错，而非判定为false
+if [ "${IS_WORKER+isset}" = "isset" ] && [ "${IS_WORKER}" = "true" ]; then
+    echo "current is worker node image, skip create install_kubernetes_once.service"
+else
 
     # /etc/systemd/system/install_kubernetes_once.service
     cat >/etc/systemd/system/install_kubernetes_once.service <<'EOF'

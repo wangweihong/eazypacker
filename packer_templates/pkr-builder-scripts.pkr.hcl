@@ -13,7 +13,8 @@ locals {
   ]
   kubernetes_env = [
     "USE_ALICLOUD=${var.use_alicloud}",
-    "IS_MASTER=${var.is_kubernetes_master}",
+    "IS_WORKER=${var.is_kubernetes_worker}",
+    "HELM_VERSION=${var.helm_version}",
   ]
   golang_env = [
     "GO_VERSION=${var.go_version}",
@@ -56,7 +57,7 @@ locals {
   ]
   golang_scripts        = ["${path.root}/scripts/custom/golang/install.sh"]
   gitlab_runner_scripts = ["${path.root}/scripts/custom/gitlab/runner/install.sh"]
-  github_runner_scripts = local.no_support_scripts
+  argocd_scripts        = ["${path.root}/scripts/custom/cicd/argocd/install.sh"]
   database_scripts      = ["${path.root}/scripts/custom/database/${var.database_type}/install_${var.database_version}.sh"]
   iac_scripts = [
     "${path.root}/scripts/custom/iac/pulumi/install.sh",
@@ -64,11 +65,29 @@ locals {
   ]
 
   docker_scripts =concat(
+      local.pre_docker_scripts,
+      ["${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"]
+    )
+
+
+    elk_common_scripts = [
+        "${path.root}/scripts/_common/expect.sh",
+        "${path.root}/scripts/custom/elk/install.sh",
+        "${path.root}/scripts/custom/elk/password.sh",
+        "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"
+    ]
+
+    elk_with_docker_scripts = concat(
+      local.pre_docker_scripts,
+      local.elk_common_scripts,
+    )
+
+    elk_scripts = var.has_docker ? local.elk_common_scripts : local.elk_with_docker_scripts
+
+  docker_scripts =concat(
     local.pre_docker_scripts,
     ["${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"]
   )
-
-
   elk_common_scripts = [
       "${path.root}/scripts/_common/expect.sh",
       "${path.root}/scripts/custom/elk/install.sh",
@@ -83,15 +102,16 @@ locals {
 
   elk_scripts = var.has_docker ? local.elk_common_scripts : local.elk_with_docker_scripts
 
+
   pre_docker_scripts = var.os_name == "ubuntu" ? ( [
     "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
     "${path.root}/scripts/custom/docker/install_docker.sh",
     "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
-  ]): local.no_support_scripts
+  ]) : local.no_support_scripts
   post_docker_scripts = var.os_name == "ubuntu" ? ([
-          "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
-            "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"
-  ]): local.no_support_scripts
+    "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
+    "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"
+  ]) : local.no_support_scripts
 
   harbor_scripts = concat(
     local.pre_docker_scripts,
@@ -126,11 +146,12 @@ locals {
               var.custom_purpose == "golang" ? local.golang_scripts : (
                 var.custom_purpose == "database" ? local.database_scripts : (
                   var.custom_purpose == "iac" ? local.iac_scripts : (
-                    var.custom_purpose == "harbor" ? local.harbor_scripts : (
+                    var.custom_purpose == "harbor" ? local.harbor_scripts :(
                       var.custom_purpose == "docker" ? local.docker_scripts : (
-                        var.custom_purpose == "elk" ?local.elk_scripts : local.no_support_scripts
-                      )
-                    )
+                        var.custom_purpose == "elk" ?local.elk_scripts : (
+                         var.custom_purpose == "argocd" ? local.argocd_scripts : local.no_support_scripts
+                        )
+                     )
                   )
                 )
               )
