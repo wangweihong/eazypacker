@@ -170,6 +170,13 @@ variable "harbor_version" {
   description = "harbor版本"
 }
 
+variable "has_docker" {
+  type        = bool
+  default     = false
+  description = "用于告知基础镜像是否包含docker"
+
+}
+
 /*----------- 操作系统通用变量 -------------- */
 
 

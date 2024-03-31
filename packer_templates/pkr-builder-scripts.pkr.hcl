@@ -62,11 +62,26 @@ locals {
     "${path.root}/scripts/custom/iac/pulumi/install.sh",
     "${path.root}/scripts/custom/iac/terraform/install.sh",
   ]
-  
+
   docker_scripts =concat(
     local.pre_docker_scripts,
     ["${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"]
   )
+
+
+  elk_common_scripts = [
+      "${path.root}/scripts/_common/expect.sh",
+      "${path.root}/scripts/custom/elk/install.sh",
+      "${path.root}/scripts/custom/elk/password.sh",
+      "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"
+  ]
+
+  elk_with_docker_scripts = concat(
+    local.pre_docker_scripts,
+    local.elk_common_scripts,
+  )
+
+  elk_scripts = var.has_docker ? local.elk_common_scripts : local.elk_with_docker_scripts
 
   pre_docker_scripts = var.os_name == "ubuntu" ? ( [
     "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
@@ -81,7 +96,8 @@ locals {
   harbor_scripts = concat(
     local.pre_docker_scripts,
     ["${path.root}/scripts/custom/harbor/install.sh"],
-    local.post_docker_scripts)
+    local.post_docker_scripts,
+  )
   
   k3s_scripts    = ["${path.root}/scripts/custom/k3s/install.sh"]
   kubernetes_scripts = var.os_name == "ubuntu" ? (
@@ -111,7 +127,9 @@ locals {
                 var.custom_purpose == "database" ? local.database_scripts : (
                   var.custom_purpose == "iac" ? local.iac_scripts : (
                     var.custom_purpose == "harbor" ? local.harbor_scripts : (
-                      var.custom_purpose == "docker" ? local.docker_scripts : local.no_support_scripts
+                      var.custom_purpose == "docker" ? local.docker_scripts : (
+                        var.custom_purpose == "elk" ?local.elk_scripts : local.no_support_scripts
+                      )
                     )
                   )
                 )
