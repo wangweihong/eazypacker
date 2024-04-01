@@ -4,7 +4,7 @@ set -x
 
 
 # 检查系统中是否已安装 Expect
-if ! command -v expect &> /dev/null; then
+if ! [ -x "$(command -v expect)" ]; then
     echo "Expect 未安装，正在安装..."
 
     # 根据系统类型使用适当的包管理器进行安装

@@ -21,6 +21,7 @@ variable "os_arch" {
 
 variable "http_proxy" {
   type        = string
+  # 默认从本地环境变量中读取, 需要注意变量应为HTTP_PROXY
   default     = env("http_proxy")
   description = "Http proxy url to connect to the internet"
 }

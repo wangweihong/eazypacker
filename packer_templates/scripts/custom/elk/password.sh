@@ -27,14 +27,7 @@ EOF
 
 chmod +x "$autoResetPasswordScript"
 iterations=10
-echo "----------------"
 
-# curl -v http://localhost:9200 
-# echo "---------dsf"
-sleep 10
-# curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9200;
-# echo "----------------"
-# 执行循环
 i=1
 while [ $i -le $iterations ]; do
     # 等待一段时间后继续循环（可根据需要调整等待时间）
@@ -43,9 +36,8 @@ while [ $i -le $iterations ]; do
     sleep 10
     # 代理可能会影响到curl -s -o的结果。如果返回结果为503, 则有可能是由于代理导致的。
     # ret=`curl --proxy "" -s -o /dev/null -w "%{http_code}" http://127.0.0.1:9200;`
-    # ret=`curl -s -o /dev/null -w "%{http_code}" -f -S http://127.0.0.1:9200;`
-    curl_output=$(curl -s -o /dev/null http://127.0.0.1:9200)
-    if [ $? -eq 0 ]  ; then
+    curl_output=$(curl --proxy "" -s http://127.0.0.1:9200 || true)
+    if echo "$curl_output" | grep -q "401"; then
         echo "service start"
         # 执行Expect脚本
         output=$(expect $autoResetPasswordScript)
