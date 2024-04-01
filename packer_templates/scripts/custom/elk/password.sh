@@ -9,8 +9,6 @@ cat  << 'EOF' > $autoResetPasswordScript
 
 set timeout 20
 
-log_file jfrog.license
-
 spawn docker exec -it es01 elasticsearch-reset-password -u elastic -i
 expect "Please confirm that you would like to continue \[y/N\]"
 send "y\r"
