@@ -64,7 +64,46 @@ locals {
     "${path.root}/scripts/custom/iac/terraform/install.sh",
   ]
 
-  pre_docker_scripts = var.os_name == "ubuntu" ? ([
+  docker_scripts =concat(
+      local.pre_docker_scripts,
+      ["${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"]
+    )
+
+
+    elk_common_scripts = [
+        "${path.root}/scripts/_common/expect.sh",
+        "${path.root}/scripts/custom/elk/install.sh",
+        "${path.root}/scripts/custom/elk/password.sh",
+        "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"
+    ]
+
+    elk_with_docker_scripts = concat(
+      local.pre_docker_scripts,
+      local.elk_common_scripts,
+    )
+
+    elk_scripts = var.has_docker ? local.elk_common_scripts : local.elk_with_docker_scripts
+
+  docker_scripts =concat(
+    local.pre_docker_scripts,
+    ["${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"]
+  )
+  elk_common_scripts = [
+      "${path.root}/scripts/_common/expect.sh",
+      "${path.root}/scripts/custom/elk/install.sh",
+      "${path.root}/scripts/custom/elk/password.sh",
+      "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh"
+  ]
+
+  elk_with_docker_scripts = concat(
+    local.pre_docker_scripts,
+    local.elk_common_scripts,
+  )
+
+  elk_scripts = var.has_docker ? local.elk_common_scripts : local.elk_with_docker_scripts
+
+
+  pre_docker_scripts = var.os_name == "ubuntu" ? ( [
     "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
     "${path.root}/scripts/custom/docker/install_docker.sh",
     "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
@@ -77,21 +116,25 @@ locals {
   harbor_scripts = concat(
     local.pre_docker_scripts,
     ["${path.root}/scripts/custom/harbor/install.sh"],
-  local.post_docker_scripts)
-
-  k3s_scripts = ["${path.root}/scripts/custom/k3s/install.sh"]
-  kubernetes_scripts = var.os_name == "ubuntu" ? [
-    "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
-    "${path.root}/scripts/custom/docker/install_docker.sh",
-    "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
-    "${path.root}/scripts/custom/kubernetes/install_kube_tools.sh",
-    "${path.root}/scripts/custom/helm/install_helm.sh",
-    "${path.root}/scripts/_common/yq.sh",
-    "${path.root}/scripts/custom/kubernetes/prepare_install.sh",
-    "${path.root}/scripts/custom/kubernetes/gen_install_script.sh",
-    "${path.root}/scripts/custom/docker/cleanup_docker_proxy.sh",
-    "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh",
-  ] : local.no_support_scripts
+    local.post_docker_scripts,
+  )
+  
+  k3s_scripts    = ["${path.root}/scripts/custom/k3s/install.sh"]
+  kubernetes_scripts = var.os_name == "ubuntu" ? (
+    var.os_version == "16.04" ? [
+      "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
+      "${path.root}/scripts/custom/docker/install_docker.sh",
+      "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
+      "${path.root}/scripts/custom/kubernetes/install_kube_tools.sh",
+      // install_helm take too long to install. 
+      //"${path.root}/scripts/custom/helm/install_helm.sh",
+      "${path.root}/scripts/_common/yq.sh",
+      "${path.root}/scripts/custom/kubernetes/prepare_install.sh",
+      "${path.root}/scripts/custom/kubernetes/gen_install_script.sh",
+      "${path.root}/scripts/custom/docker/cleanup_docker_proxy.sh",
+      "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh",
+    ] : local.no_support_scripts
+  ) : local.no_support_scripts
 
 
   custom_image_scripts = var.custom_image_scripts == null ? (
@@ -103,9 +146,12 @@ locals {
               var.custom_purpose == "golang" ? local.golang_scripts : (
                 var.custom_purpose == "database" ? local.database_scripts : (
                   var.custom_purpose == "iac" ? local.iac_scripts : (
-                    var.custom_purpose == "harbor" ? local.harbor_scripts : (
-                      var.custom_purpose == "argocd" ? local.argocd_scripts : local.no_support_scripts
-                    )
+                    var.custom_purpose == "harbor" ? local.harbor_scripts :(
+                      var.custom_purpose == "docker" ? local.docker_scripts : (
+                        var.custom_purpose == "elk" ?local.elk_scripts : (
+                         var.custom_purpose == "argocd" ? local.argocd_scripts : local.no_support_scripts
+                        )
+                     )
                   )
                 )
               )

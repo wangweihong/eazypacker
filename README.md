@@ -29,9 +29,16 @@
     * goss: goss测试用
     * none: 只打印环境变量，测试用
     * docker: 安装docker
+    * elk: 安装elk
     * kubernetes: 安装kubernetes预部署环境. 包括依赖镜像、kubelet等工具
 * `-var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl`: 如果不通过`vmware_vmx_source_path`指定黄金镜像路径时，默认是源为`${local.output_directory}/${var.os_name}/${var.os_type}/${var.os_arch}.vmx`
+    * 如基于docker镜像构建elk镜像`PACKER_CACHE_DIR=/f/build_cache packer build  -on-error=ask -only=*.vmware-vmx.vm -var custom_purpose=elk -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build  -var vmware_vmx_source_path=/f/build/ubuntu/16.04/x86_64/docker/ubuntu-16.04-amd64.vmx ./packer_templates/`
     * 指定源构建镜像`PACKER_CACHE_DIR=/f/build_cache packer build  -on-error=ask -only=*.vmware-vmx.vm -var custom_purpose=argocd -var-file ./os_pkrvars/ubuntu/ubuntu-20.04-x86_64.pkrvars.hcl -var output_directory=/f/build  -var vmware_vmx_source_path=/f/build/ubuntu/20.04/x86_64/kubernetes/ubuntu-20.04-amd64.vmx ./packer_templates/`
+### 其他选项
+* `--var has_docker=true`:
+    * 用于表明源镜像已经安装了docker, 且不需要替换。则跳过安装docker步骤
+        * `PACKER_CACHE_DIR=/f/build_cache packer build  -on-error=ask -only=*.vmware-vmx.vm -var custom_purpose=elk -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build  -var vmware_vmx_source_path=/f/build/ubuntu/16.04/x86_64/docker/ubuntu-16.04-amd64.vmx -var has_docker=true ./packer_templates/`
+
 ## 构建alicloud-ecs镜像
 1.  配置账号密码
     ```
@@ -64,3 +71,11 @@
 ### 构建
 * `make build.custom.kubernetes.qemu.ubuntu-16.04`
 * `make build.cutome.kubernetes.qemu.ubuntu-16.04 VARS="vmware-format=ova"`构建模板，并传递packer参数"-var vmware-format=ova"
+
+# 其他
+## 设置代理部分忽略代理
+```
+export http_proxy=http://xxxx:11111
+export https_proxy=http://xxxx:11111
+export no_proxy="localhost,127.0.0.1,example.com"
+```
