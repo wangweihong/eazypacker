@@ -40,6 +40,9 @@
         * `PACKER_CACHE_DIR=/f/build_cache packer build  -on-error=ask -only=*.vmware-vmx.vm -var custom_purpose=elk -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build  -var vmware_vmx_source_path=/f/build/ubuntu/16.04/x86_64/docker/ubuntu-16.04-amd64.vmx -var has_docker=true ./packer_templates/`
         * 已支持定制：
             * elk
+* `--var vmware_format=ova`:
+    * 指定vmware-vmx镜像的输出格式为ova.            
+        * 如果需要将格式转换成ova格式, 需要安装ova必须安装ovftool工具,且将ovftool程序路径添加环境变量PATH中
 
 ## 构建alicloud-ecs镜像
 1.  配置账号密码
@@ -48,8 +51,7 @@
         export ALICLOUD_SECRET_KEY=xxx
     ```
 2. `PACKER_CACHE_DIR=/f/build_cache packer build  -on-error=ask -only=*.alicloud-ecs.vm -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build ./packer_templates/`
-### 注意
-* 如果需要将格式转换成ova格式, 需要安装ova必须安装ovftool工具,且将ovftool程序路径添加环境变量PATH中
+
 
 # Makefile运行
 ## 模板
