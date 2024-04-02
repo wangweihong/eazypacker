@@ -37,10 +37,9 @@ packer {
 locals {
   build_version_path  = var.build_version_path == null ? "${path.root}/../.build_version" : var.build_version_path
   vagrant_output_path = var.output_directory == null ? "${path.root}/../builds" : var.output_directory
-  //这里的目的是用于控制except
+  //这里的目的是用于控制shell provisioner的except
   golden_image_source_names = [for source in var.golden_image_sources_enabled : trimprefix(source, "source.")]
   custom_image_source_names = [for source in var.golden_image_sources_enabled : trimprefix(source, "source.")]
-
 }
 
 # https://www.packer.io/docs/templates/hcl_templates/blocks/build
@@ -136,9 +135,16 @@ build {
 
   sources = var.custom_image_sources_enabled
 
+  # 上传脚本依赖文件到构建服务器
+  provisioner "file" {
+    sources = local.custom_image_pre_upload_files
+    # 默认上传到/tmp目录, 由脚本负责拷贝
+    destination = "/tmp/"
+  }
+
   # Linux Shell scipts
   provisioner "shell" {
-    environment_vars = concat(local.common_env , local.custom_env)
+    environment_vars = concat(local.common_env, local.custom_env)
 
     //运行shell脚本时使用的命令
     //如果 var.os_name 是 "freebsd"，则使用 su 命令以 root 用户身份执行脚本。
@@ -152,11 +158,17 @@ build {
     expect_disconnect = true
     //要执行的脚本列表
     //通过concat连接通用脚本
-    scripts = concat(local.common_scripts , local.custom_image_scripts)
+    scripts = concat(local.common_scripts, local.custom_image_scripts)
     //避免在windows执行
     except = var.is_windows ? local.custom_image_source_names : null
   }
 
+  # 下载构建服务器生成文件
+  provisioner "file" {
+    sources = local.custom_image_post_download_source
+    destination =  local.custom_image_post_download_destination
+    direction = "download"
+  }
 
   // genenrate manifests to record image build info
   post-processor "manifest" {
