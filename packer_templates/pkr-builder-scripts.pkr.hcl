@@ -10,9 +10,9 @@ locals {
     "OS_VERSION=${var.os_version}",
     "OS_ARCH=${var.os_arch}",
     "OS_NAME=${var.os_name}",
+    "USE_ALICLOUD=${var.use_alicloud}",
   ]
   kubernetes_env = [
-    "USE_ALICLOUD=${var.use_alicloud}",
     "IS_WORKER=${var.is_kubernetes_worker}",
     "HELM_VERSION=${var.helm_version}",
   ]

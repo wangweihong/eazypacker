@@ -46,12 +46,12 @@ sudo -s docker run --restart=always -d --name $ESNAME \
     -e "discovery.type=single-node" -m 1G \
     docker.elastic.co/elasticsearch/elasticsearch:$ESVERSION
 
-
-curl -L  https://github.com/infinilabs/analysis-ik/releases/download/v$ESVERSION/elasticsearch-analysis-ik-$ESVERSION.zip -o $RootDIR/elasticsearch-analysis-ik-$ESVERSION.zip
-if ! [ -x "$(command -v zip)" ]; then
-    apt install -y zip
+if ! [ -e $RootDIR/elasticsearch-analysis-ik-$ESVERSION.zip ];then
+  curl -L  https://github.com/infinilabs/analysis-ik/releases/download/v$ESVERSION/elasticsearch-analysis-ik-$ESVERSION.zip -o $RootDIR/elasticsearch-analysis-ik-$ESVERSION.zip
+  if ! [ -x "$(command -v zip)" ]; then
+      apt install -y zip
+  fi
 fi
-
 unzip $RootDIR/elasticsearch-analysis-ik-$ESVERSION.zip -d $RootDIR/plugin/elasticsearch-analysis-ik-$ESVERSION
 
 docker restart $ESNAME

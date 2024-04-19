@@ -16,12 +16,14 @@ sudo pkill apt-get || true
 
 sudo apt-get remove docker docker-engine docker.io containerd runc || true
 
+# TODO: offline installer.
+
 # use alicloud apt source instead
 # 使用ubuntu源时，这里访问极其缓慢，因此采用阿里云源来替代
 # "${USE_ALICLOUD+isset}" = "isset" 是为了避免USE_ALICLOUD没有设置时直接出错，而非判定为false
 if [  "${USE_ALICLOUD+isset}" = "isset" ] && [ "${USE_ALICLOUD}" = "true" ] ; then 
   echo "use alicloud apt source"
-  sudo apt-get update
+  sudo apt-get -y update
   sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common
   curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
   sudo add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
@@ -30,7 +32,7 @@ if [  "${USE_ALICLOUD+isset}" = "isset" ] && [ "${USE_ALICLOUD}" = "true" ] ; th
 
 else 
 
-sudo apt-get update
+sudo apt-get update -y
 sudo apt-get install \
     apt-transport-https \
     ca-certificates \
