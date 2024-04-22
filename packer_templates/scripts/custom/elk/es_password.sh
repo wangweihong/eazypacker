@@ -2,6 +2,8 @@
 set -e
 set -x
 
+ESNAME="es01"
+
 autoResetPasswordScript="/tmp/auto-expect-password.exp"
 
 cat  << 'EOF' > $autoResetPasswordScript
@@ -52,5 +54,5 @@ if [ $i -gt $iterations ] ; then
     exit 1
 fi
 
-docker restart es01
+docker restart $ESNAME
 rm $autoResetPasswordScript
