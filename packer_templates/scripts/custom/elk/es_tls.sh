@@ -156,7 +156,7 @@ openssl pkcs12 -in $ROOT_DIR/config/elastic-stack-ca.p12 -nocerts -nodes -out ca
     -passin pass:$CA_PASSWORD -passout pass:$CA_PASSWORD
 openssl pkcs12 -in $ROOT_DIR/config/elastic-stack-ca.p12 -out ca.crt \
     -passin pass:$CA_PASSWORD -passout pass:$CA_PASSWORD
-common_generate_certificate $ROOT_DIR/pki es01 /CN=elk 127.0.0.1,localhost,es01.com,$ELK_IP server
+common_generate_certificate $ROOT_DIR/pki es01 /CN=elk 127.0.0.1,localhost,es01,$ELK_IP server
 openssl pkcs12 -export -out es01.p12 -inkey es01.key -in es01.crt -certfile ca.crt -passout pass:$CA_PASSWORD
 
 popd
@@ -169,6 +169,7 @@ cat <<EOF >>$ROOT_DIR/config/elasticsearch.yml
 xpack.security.http.ssl.enabled: true
 xpack.security.http.ssl.keystore.path: es01.p12
 
+xpack.security.enrollment.enabled: true
 EOF
 
 echo $CA_PASSWORD | sudo -s docker exec -i $ESNAME elasticsearch-keystore add xpack.security.http.ssl.keystore.secure_password -s

@@ -85,9 +85,12 @@ locals {
 
   elk_common_scripts = [
     "${path.root}/scripts/_common/expect.sh",
-    "${path.root}/scripts/custom/elk/install.sh",
-    #   "${path.root}/scripts/custom/elk/kibana.sh",
-    "${path.root}/scripts/custom/elk/password.sh",
+    "${path.root}/scripts/custom/elk/es.sh",
+    "${path.root}/scripts/custom/elk/es_password.sh",
+    "${path.root}/scripts/custom/elk/es_tls.sh",
+    "${path.root}/scripts/custom/elk/es_plugin.sh",
+    "${path.root}/scripts/custom/elk/head.sh",
+    "${path.root}/scripts/custom/elk/kibana.sh",
   ]
 
   elk_need_docker_scripts = concat(
@@ -247,7 +250,7 @@ locals {
   // 自定义镜像执行脚本前上传文件到构建实例(如果置为null, 则不会上传)
   custom_image_pre_upload_files = var.custom_purpose == "artifactory" ? local.artifactory_upload_files : null
   // 自定义镜像执行脚本后从构建实例下载文件(如果置为null, 则不会下载)
-  custom_image_post_download_source = var.custom_purpose == "artifactory" ? ["/tmp/jfrog.license"] : null
+  custom_image_post_download_source      = var.custom_purpose == "artifactory" ? ["/tmp/jfrog.license"] : null
   custom_image_post_download_destination = local.download_file_path
   # 下载文件路径(下载到指定目录)
   download_file_path = "${path.root}/../builds/download/"
