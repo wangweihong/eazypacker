@@ -99,12 +99,32 @@ locals {
     local.post_docker_scripts
   )
 
-  elk_scripts = var.has_docker ? local.elk_common_scripts : local.elk_need_docker_scripts
+
+  #elk_scripts = var.has_docker ? local.elk_common_scripts : local.elk_need_docker_scripts
+
+  elk_scripts = var.os_name == "ubuntu" ? (
+    var.os_version == "16.04" ? local.no_support_scripts : (
+      var.has_docker ? local.elk_common_scripts : local.elk_need_docker_scripts
+    )
+  ) : local.no_support_scripts
 
   harbor_scripts = concat(
     local.pre_docker_scripts,
     ["${path.root}/scripts/custom/harbor/install.sh"],
     local.post_docker_scripts,
+  )
+
+  jenkins_scripts = var.has_docker ? local.jenkins_common_scripts : local.jenkins_need_docker_scripts
+
+  jenkins_need_docker_scripts = concat(
+    local.pre_docker_scripts,
+    local.jenkins_common_scripts,
+    local.post_docker_scripts
+  )
+
+
+  jenkins_common_scripts = concat(
+    ["${path.root}/scripts/custom/devops/jenkins/install.sh"],
   )
 
   artifactory_scripts = var.has_docker ? local.artifactory_common_scripts : local.artifactory_need_docker_scripts
@@ -151,7 +171,8 @@ locals {
                       var.custom_purpose == "docker" ? local.docker_scripts : (
                         var.custom_purpose == "elk" ? local.elk_scripts : (
                           var.custom_purpose == "argocd" ? local.argocd_scripts : (
-                            var.custom_purpose == "artifactory" ? local.artifactory_scripts : local.no_support_scripts
+                            var.custom_purpose == "artifactory" ? local.artifactory_scripts : (
+                            var.custom_purpose == "jenkins" ? local.jenkins_scripts :local.no_support_scripts)
                           )
                         )
                       )
