@@ -15,6 +15,7 @@ locals {
   kubernetes_env = [
     "IS_WORKER=${var.is_kubernetes_worker}",
     "HELM_VERSION=${var.helm_version}",
+    "KUBERNETES_VERSION=${var.kubernetes_version}"
   ]
   golang_env = [
     "GO_VERSION=${var.go_version}",
@@ -99,9 +100,6 @@ locals {
     local.post_docker_scripts
   )
 
-
-  #elk_scripts = var.has_docker ? local.elk_common_scripts : local.elk_need_docker_scripts
-
   elk_scripts = var.os_name == "ubuntu" ? (
     var.os_version == "16.04" ? local.no_support_scripts : (
       var.has_docker ? local.elk_common_scripts : local.elk_need_docker_scripts
@@ -141,6 +139,23 @@ locals {
   )
 
   k3s_scripts = ["${path.root}/scripts/custom/k3s/install.sh"]
+
+  kubernetes_docker_scripts = var.os_name == "ubuntu" ? (
+    var.os_version == "16.04" ? [
+      "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
+      "${path.root}/scripts/custom/docker/install_docker.sh",
+      "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
+      "${path.root}/scripts/custom/kubernetes/install_kube_tools.sh",
+      // install_helm take too long to install. 
+      //"${path.root}/scripts/custom/helm/install_helm.sh",
+      "${path.root}/scripts/_common/yq.sh",
+      "${path.root}/scripts/custom/kubernetes/prepare_install.sh",
+      "${path.root}/scripts/custom/kubernetes/gen_install_script.sh",
+      "${path.root}/scripts/custom/docker/cleanup_docker_proxy.sh",
+      "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh",
+    ] : local.no_support_scripts
+  ) : local.no_support_scripts
+
   kubernetes_scripts = var.os_name == "ubuntu" ? (
     var.os_version == "16.04" ? [
       "${path.root}/scripts/ubuntu/install_apt_proxy.sh",

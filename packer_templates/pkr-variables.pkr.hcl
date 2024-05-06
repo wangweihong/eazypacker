@@ -153,6 +153,13 @@ variable "is_kubernetes_worker" {
   default     = env("is_kubernetes_worker")
 }
 
+variable "use_docker" {
+  type        = bool
+  default     = true
+  description = "用于告知kubernetes是否应使用docker作为cri"
+}
+
+
 variable "go_version" {
   type = string 
   default = "1.19.13"
@@ -201,8 +208,8 @@ variable "has_docker" {
   type        = bool
   default     = false
   description = "用于告知基础镜像是否包含docker"
-
 }
+
 
 /*----------- 操作系统通用变量 -------------- */
 
