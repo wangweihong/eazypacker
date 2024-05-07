@@ -152,7 +152,7 @@ build {
     //如果 var.os_name 不是 "freebsd" 也不是 "solaris"，则使用 sudo 命令以 root 用户身份执行脚本。
     execute_command = source.type == "alicloud-ecs" ? "{{ .Path}}" : (
       var.os_name == "freebsd" ? "echo 'vagrant' | {{.Vars}} su -m root -c 'sh -eux {{.Path}}'" : (
-      var.os_name == "solaris" ? "echo 'vagrant'|sudo -S bash {{.Path}}" : "echo 'vagrant' | {{ .Vars }} sudo -S -E sh -eux '{{ .Path }}'")
+      var.os_name == "solaris" ? "echo 'vagrant'|sudo -S bash {{.Path}}" : "echo 'vagrant' | {{ .Vars }} sudo -S -E bash -eux '{{ .Path }}'")
     )
     //在执行脚本后，预期会断开与远程主机的连接
     expect_disconnect = true
