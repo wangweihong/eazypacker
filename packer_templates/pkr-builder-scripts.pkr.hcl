@@ -12,10 +12,15 @@ locals {
     "OS_NAME=${var.os_name}",
     "USE_ALICLOUD=${var.use_alicloud}",
   ]
+
   kubernetes_env = [
-    "IS_WORKER=${var.is_kubernetes_worker}",
+    "KUBE_WORKER=${var.is_kubernetes_worker}",
     "HELM_VERSION=${var.helm_version}",
-    "KUBERNETES_VERSION=${var.kubernetes_version}"
+    "KUBE_VERSION=${var.kubernetes_version}",
+    # "KUBE_CRI=${var.kubernetes_cri}",
+    # "HTTP_PROXY=${var.http_proxy}",
+    # "HTTPS_PROXY=${var.https_proxy}",
+    # "NO_PROXY=localhost,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.svc,.cluster.local,.ewhisper.cn,<nodeCIDR>,<APIServerInternalURL>,<serviceNetworkCIDRs>,<etcdDiscoveryDomain>,<clusterNetworkCIDRs>,<platformSpecific>,<REST_OF_CUSTOM_EXCEPTIONS>",
   ]
   golang_env = [
     "GO_VERSION=${var.go_version}",
@@ -36,21 +41,19 @@ locals {
     "TERRAFORM_VERSION=${var.terraform_version}",
   ]
 
-  custom_env = var.custom_purpose == "kubernetes" ? local.kubernetes_env : (
-    var.custom_purpose == "golang" ? local.golang_env : (
-      var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_env : (
-        var.custom_purpose == "database" ? local.database_env : (
-          var.custom_purpose == "iac" ? local.iac_env : (
-            var.custom_purpose == "harbor" ? local.harbor_env : []
-          )
-        )
-      )
-    )
+  custom_env = (var.custom_purpose == "kubernetes" ? local.kubernetes_env :
+    var.custom_purpose == "golang" ? local.golang_env :
+    var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_env :
+    var.custom_purpose == "database" ? local.database_env :
+    var.custom_purpose == "iac" ? local.iac_env :
+    var.custom_purpose == "harbor" ? local.harbor_env : []
   )
+
   /*--------------  scripts -------------------*/
   common_scripts = [
-    "${path.root}/scripts/_common/none.sh",
+    #"${path.root}/scripts/_common/none.sh",
   ]
+
   expect_scripts     = ["${path.root}/scripts/_common/expect.sh"]
   no_support_scripts = ["${path.root}/scripts/_common/no_support.sh"]
   goss_scripts       = ["${path.root}/scripts/_common/goss.sh"]
@@ -140,67 +143,70 @@ locals {
 
   k3s_scripts = ["${path.root}/scripts/custom/k3s/install.sh"]
 
-  kubernetes_docker_scripts = var.os_name == "ubuntu" ? (
-    var.os_version == "16.04" ? [
-      "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
-      "${path.root}/scripts/custom/docker/install_docker.sh",
-      "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
-      "${path.root}/scripts/custom/kubernetes/install_kube_tools.sh",
-      // install_helm take too long to install. 
-      //"${path.root}/scripts/custom/helm/install_helm.sh",
-      "${path.root}/scripts/_common/yq.sh",
-      "${path.root}/scripts/custom/kubernetes/prepare_install.sh",
-      "${path.root}/scripts/custom/kubernetes/gen_install_script.sh",
-      "${path.root}/scripts/custom/docker/cleanup_docker_proxy.sh",
-      "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh",
-    ] : local.no_support_scripts
-  ) : local.no_support_scripts
+  // kubernetes_containerd_scripts = [
+  //   "${path.root}/scripts/_common/yq.sh",
+  //   "${path.root}/scripts/custom/kubernetes/environment.sh",
+  //   "${path.root}/scripts/custom/kubernetes/install_kube_tools.sh",
+  //   "${path.root}/scripts/custom/kubernetes/tools/containerd/install_containerd.sh",
+  //   "${path.root}/scripts/custom/kubernetes/tools/containerd/install_cri_tools.sh",
+  //   "${path.root}/scripts/custom/kubernetes/tools/containerd/config_proxy.sh",
+  //   "${path.root}/scripts/custom/kubernetes/tools/helm/install_helm.sh",
+  //   "${path.root}/scripts/custom/kubernetes/tools/kustomize/install.sh",
+  //   "${path.root}/scripts/custom/kubernetes/prepare_install.sh",
+  //   "${path.root}/scripts/custom/kubernetes/gen_install_script.sh",
+  //   "${path.root}/scripts/custom/kubernetes/tools/containerd/cleanup_proxy.sh",
+  // ]
 
-  kubernetes_scripts = var.os_name == "ubuntu" ? (
-    var.os_version == "16.04" ? [
-      "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
-      "${path.root}/scripts/custom/docker/install_docker.sh",
-      "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
-      "${path.root}/scripts/custom/kubernetes/install_kube_tools.sh",
-      // install_helm take too long to install. 
-      //"${path.root}/scripts/custom/helm/install_helm.sh",
-      "${path.root}/scripts/_common/yq.sh",
-      "${path.root}/scripts/custom/kubernetes/prepare_install.sh",
-      "${path.root}/scripts/custom/kubernetes/gen_install_script.sh",
-      "${path.root}/scripts/custom/docker/cleanup_docker_proxy.sh",
-      "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh",
-    ] : local.no_support_scripts
-  ) : local.no_support_scripts
+  // kubernetes_docker_scripts = var.os_name == "ubuntu" ? (
+  //   var.os_version == "16.04" ? [
+  //     "${path.root}/scripts/_common/yq.sh",
+  //     "${path.root}/scripts/ubuntu/install_apt_proxy.sh",
+  //     "${path.root}/scripts/custom/docker/install_docker.sh",
+  //     "${path.root}/scripts/custom/docker/config_docker_proxy.sh",
+  //     "${path.root}/scripts/custom/kubernetes/install_kube_tools.sh",
+  //     "${path.root}/scripts/custom/kubernetes/tools/helm/install_helm.sh",
+  //     "${path.root}/scripts/custom/kubernetes/tools/kustomize/install.sh",
+  //     "${path.root}/scripts/custom/kubernetes/prepare_install.sh",
+  //     "${path.root}/scripts/custom/kubernetes/gen_install_script.sh",
+  //     "${path.root}/scripts/custom/docker/cleanup_docker_proxy.sh",
+  //     "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh",
+  //   ] : local.no_support_scripts
+  // ) : local.no_support_scripts
 
-  // 自定义镜像脚本
+  // kubernetes_scripts = var.kubernetes_cri == "containerd" ? local.kubernetes_containerd_scripts : local.kubernetes_docker_scripts
+
+  inline_custom_image_scripts = var.inline_custom_image_scripts != null ? var.inline_custom_image_scripts : (
+    var.custom_purpose == "kubernetes" ? [
+      "env",
+      "chmod +x -R /tmp/kubernetes",
+      "chmod +x -R /tmp/docker",
+      "chmod +x -R /tmp/ubuntu",
+      "chmod +x /tmp/yq.sh",
+      "/tmp/yq.sh",
+      "/tmp/kubernetes/run.sh"
+    ] :
+    ["env"]
+  )
+
   custom_image_scripts = var.custom_image_scripts == null ? (
-    var.custom_purpose == null || var.custom_purpose == "none" ? local.none_scripts : (
-      var.custom_purpose == "kubernetes" ? local.kubernetes_scripts : (
-        var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_scripts : (
-          var.custom_purpose == "goss" ? local.goss_scripts : (
-            var.custom_purpose == "k3s" ? local.k3s_scripts : (
-              var.custom_purpose == "golang" ? local.golang_scripts : (
-                var.custom_purpose == "database" ? local.database_scripts : (
-                  var.custom_purpose == "iac" ? local.iac_scripts : (
-                    var.custom_purpose == "harbor" ? local.harbor_scripts : (
-                      var.custom_purpose == "docker" ? local.docker_scripts : (
-                        var.custom_purpose == "elk" ? local.elk_scripts : (
-                          var.custom_purpose == "argocd" ? local.argocd_scripts : (
-                            var.custom_purpose == "artifactory" ? local.artifactory_scripts : (
-                            var.custom_purpose == "jenkins" ? local.jenkins_scripts :local.no_support_scripts)
-                          )
-                        )
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          )
-        )
-      )
-    )
+    var.custom_purpose == null || var.custom_purpose == "none" ? local.none_scripts :
+    # var.custom_purpose == "kubernetes" ? local.kubernetes_scripts :
+    # 通过上传脚本到构建器, 通过inline shell来执行kubernetes安装, 这里不做任何操作。
+    var.custom_purpose == "kubernetes" ? local.none_scripts :
+    var.custom_purpose == "gitlab-runner" ? local.gitlab_runner_scripts :
+    var.custom_purpose == "goss" ? local.goss_scripts :
+    var.custom_purpose == "k3s" ? local.k3s_scripts :
+    var.custom_purpose == "golang" ? local.golang_scripts :
+    var.custom_purpose == "database" ? local.database_scripts :
+    var.custom_purpose == "iac" ? local.iac_scripts :
+    var.custom_purpose == "harbor" ? local.harbor_scripts :
+    var.custom_purpose == "docker" ? local.docker_scripts :
+    var.custom_purpose == "elk" ? local.elk_scripts :
+    var.custom_purpose == "argocd" ? local.argocd_scripts :
+    var.custom_purpose == "artifactory" ? local.artifactory_scripts :
+    var.custom_purpose == "jenkins" ? local.jenkins_scripts : local.no_support_scripts
   ) : var.custom_image_scripts
+
 
   // 黄金镜像构建脚本
   gloden_image_scripts = var.gloden_image_scripts == null ? (
@@ -284,7 +290,17 @@ locals {
   ]
 
   // 自定义镜像执行脚本前上传文件到构建实例(如果置为null, 则不会上传)
-  custom_image_pre_upload_files = var.custom_purpose == "artifactory" ? local.artifactory_upload_files : null
+  custom_image_pre_upload_files = var.custom_purpose != "artifactory" ? (
+    # 上传kubernetes部署脚本到构建环境
+    var.custom_purpose == "kubernetes" ? [
+      "${path.root}/scripts/custom/kubernetes",
+      "${path.root}/scripts/custom/docker",
+      "${path.root}/scripts/_common/yq.sh",
+      "${path.root}/scripts/ubuntu",
+      "${path.root}/scripts/ubuntu/cleanup_apt_proxy.sh",
+    ] : null
+  ) : local.artifactory_upload_files
+
   // 自定义镜像执行脚本后从构建实例下载文件(如果置为null, 则不会下载)
   custom_image_post_download_source      = var.custom_purpose == "artifactory" ? ["/tmp/jfrog.license"] : null
   custom_image_post_download_destination = local.download_file_path

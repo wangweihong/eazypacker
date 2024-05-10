@@ -153,11 +153,11 @@ variable "is_kubernetes_worker" {
   default     = env("is_kubernetes_worker")
 }
 
-variable "use_docker" {
-  type        = bool
-  default     = true
-  description = "用于告知kubernetes是否应使用docker作为cri"
-}
+// variable "kubernetes_cri" {
+//   type        = string
+//   default     = "docker"
+//   description = "用于告知kubernetes使用哪种cri,默认为docker"
+// }
 
 
 variable "go_version" {
@@ -366,6 +366,12 @@ variable "custom_image_scripts" {
   type        = list(string)
   default     = null
   description = "构建自定义镜像运行的脚本"
+}
+
+variable "inline_custom_image_scripts" {
+  type        = list(string)
+  default     = null
+  description = "构建自定义镜像运行的内联脚本"
 }
 
 variable "gloden_image_scripts" {

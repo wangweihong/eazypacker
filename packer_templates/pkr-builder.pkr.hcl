@@ -65,6 +65,7 @@ build {
     //如果 var.os_name 是 "solaris"，则使用 sudo 命令以 root 用户身份执行脚本。
     //如果 var.os_name 不是 "freebsd" 也不是 "solaris"，则使用 sudo 命令以 root 用户身份执行脚本。
     execute_command = var.os_name == "freebsd" ? "echo 'vagrant' | {{.Vars}} su -m root -c 'sh -eux {{.Path}}'" : (
+
       var.os_name == "solaris" ? "echo 'vagrant'|sudo -S bash {{.Path}}" : "echo 'vagrant' | {{ .Vars }} sudo -S -E sh -eux '{{ .Path }}'"
     )
     //在执行脚本后，预期会断开与远程主机的连接
@@ -152,22 +153,49 @@ build {
     //如果 var.os_name 不是 "freebsd" 也不是 "solaris"，则使用 sudo 命令以 root 用户身份执行脚本。
     execute_command = source.type == "alicloud-ecs" ? "{{ .Path}}" : (
       var.os_name == "freebsd" ? "echo 'vagrant' | {{.Vars}} su -m root -c 'sh -eux {{.Path}}'" : (
+        # ubuntu sh default use dash which doesn't identify bash function syntax. It report 'Syntax error: "(" unexpected' when shell provisioner run scripts. use bash instead sh
+        # see https://www.cnblogs.com/lxhbky/p/14658143.html for detail.
       var.os_name == "solaris" ? "echo 'vagrant'|sudo -S bash {{.Path}}" : "echo 'vagrant' | {{ .Vars }} sudo -S -E bash -eux '{{ .Path }}'")
     )
     //在执行脚本后，预期会断开与远程主机的连接
     expect_disconnect = true
-    //要执行的脚本列表
+    //要执行的脚本列表,每个脚本都是相关联的，环境变量继承。
+    //通过concat连接通用脚本
+    inline = local.inline_custom_image_scripts
+    //避免在windows执行
+    except = var.is_windows ? local.custom_image_source_names : null
+  }
+
+  # Linux Shell scipts
+  provisioner "shell" {
+    environment_vars = concat(local.common_env, local.custom_env)
+
+    //运行shell脚本时使用的命令
+    //如果 var.os_name 是 "freebsd"，则使用 su 命令以 root 用户身份执行脚本。
+    //如果 var.os_name 是 "solaris"，则使用 sudo 命令以 root 用户身份执行脚本。
+    //如果 var.os_name 不是 "freebsd" 也不是 "solaris"，则使用 sudo 命令以 root 用户身份执行脚本。
+    execute_command = source.type == "alicloud-ecs" ? "{{ .Path}}" : (
+      var.os_name == "freebsd" ? "echo 'vagrant' | {{.Vars}} su -m root -c 'sh -eux {{.Path}}'" : (
+        # ubuntu sh default use dash which doesn't identify bash function syntax. It report 'Syntax error: "(" unexpected' when shell provisioner run scripts. use bash instead sh
+        # see https://www.cnblogs.com/lxhbky/p/14658143.html for detail.
+      var.os_name == "solaris" ? "echo 'vagrant'|sudo -S bash {{.Path}}" : "echo 'vagrant' | {{ .Vars }} sudo -S -E bash -eux '{{ .Path }}'")
+    )
+    //在执行脚本后，预期会断开与远程主机的连接
+    expect_disconnect = true
+    //要执行的脚本列表,每个脚本都是独立，环境变量不继承。
     //通过concat连接通用脚本
     scripts = concat(local.common_scripts, local.custom_image_scripts)
     //避免在windows执行
     except = var.is_windows ? local.custom_image_source_names : null
   }
 
+
+
   # 下载构建服务器生成文件
   provisioner "file" {
-    sources = local.custom_image_post_download_source
-    destination =  local.custom_image_post_download_destination
-    direction = "download"
+    sources     = local.custom_image_post_download_source
+    destination = local.custom_image_post_download_destination
+    direction   = "download"
   }
 
   // genenrate manifests to record image build info
