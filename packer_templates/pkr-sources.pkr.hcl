@@ -60,7 +60,7 @@ locals {
   vmware_tools_upload_path = var.vmware_tools_upload_path == null ? (
     var.is_windows ? "c:\\vmware-tools.iso" : "/tmp/vmware-tools.iso"
   ) : var.vmware_tools_upload_path
-  vmware_vmx_display_prefix = var.custom_purpose == null || var.custom_purpose == "none" ? "vmx": var.custom_purpose
+  vmware_vmx_display_prefix = var.custom_purpose == null || var.custom_purpose == "none" ? "vmx" : var.custom_purpose
   vmware_vmx_display_name = var.vmware_vmx_display_name == null ? (
     var.os_arch == "x86_64" ? "${local.vmware_vmx_display_prefix}-${var.os_name}-${var.os_version}-amd64" : "${local.vmware_vmx_display_prefix}-${var.os_name}-${var.os_version}-${var.os_arch}"
   ) : var.vmware_vmx_display_name
@@ -70,7 +70,7 @@ locals {
   vmware_vmx_source_file_format = var.vmware_vmx_source_file_format == null ? "vmx" : var.vmware_vmx_source_file_format
   vmware_vmx_source_directory   = var.vmware_vmx_source_directory == null ? "${local.output_directory}/vmware-iso" : var.vmware_vmx_source_directory
   vmware_vmx_source_file_name   = var.vmware_vmx_source_file_name == null ? "${local.vm_name}" : var.vmware_vmx_source_file_name
-  vmware_vmx_source_path        = var.vmware_vmx_source_path == null ? "${local.vmware_vmx_source_directory}/${local.vmware_vmx_source_file_name}.${local.vmware_vmx_source_file_format}" : var.vmware_vmx_source
+  vmware_vmx_source_path        = var.vmware_vmx_source_path == null ? "${local.vmware_vmx_source_directory}/${local.vmware_vmx_source_file_name}.${local.vmware_vmx_source_file_format}" : var.vmware_vmx_source_path
   /* --------- Source块 ------------*/
   default_boot_wait = var.default_boot_wait == null ? (
     var.is_windows ? "60s" : "5s"
@@ -315,9 +315,9 @@ source "vmware-vmx" "vm" {
   source_path                    = local.vmware_vmx_source_path
   vmdk_name                      = local.vmware_vmdk_name
   format                         = var.vmware_format
-  /*----------- Source块通用参数 ---------- */ 
- # output_directory = "${local.output_directory}/${source.type}"
-  output_directory = var.custom_purpose == null  ? "${local.output_directory}/${source.type}" : "${local.output_directory}/${var.custom_purpose}"
+  /*----------- Source块通用参数 ---------- */
+  # output_directory = "${local.output_directory}/${source.type}"
+  output_directory = var.custom_purpose == null ? "${local.output_directory}/${source.type}" : "${local.output_directory}/${var.custom_purpose}"
   shutdown_command = local.shutdown_command
   shutdown_timeout = var.shutdown_timeout
   display_name     = local.vmware_vmx_display_name

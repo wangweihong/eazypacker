@@ -1,0 +1,52 @@
+# /etc/haproxy/haproxy.cfg
+#---------------------------------------------------------------------
+# Global settings
+#---------------------------------------------------------------------
+global
+    log /dev/log local0
+    log /dev/log local1 notice
+    daemon
+
+#---------------------------------------------------------------------
+# common defaults that all the 'listen' and 'backend' sections will
+# use if not designated in their block
+#---------------------------------------------------------------------
+defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option http-server-close
+    option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    retries                 1
+    timeout http-request    240s
+    timeout queue           240s
+    timeout connect         240s
+    timeout client          4h
+    timeout server          4h
+    timeout http-keep-alive 240s
+    timeout check           240s
+
+#---------------------------------------------------------------------
+# apiserver frontend which proxys to the masters
+#---------------------------------------------------------------------
+frontend apiserver
+    # bind *:8443
+    bind *:{{.HaproxyPort}}
+    mode tcp
+    option tcplog
+    default_backend apiserver
+#---------------------------------------------------------------------
+# round robin balancing for apiserver
+#---------------------------------------------------------------------
+backend apiserver
+    option httpchk GET /healthz
+    http-check expect status 200
+    mode tcp
+    #    option ssl-hello-chk
+    balance     roundrobin
+    #  server 10.30.100.156 10.30.100.156:6443 check check-ssl verify none
+	{{range .ServerIPs}}
+    server {{.}} {{.}}:6443 check check-ssl verify none
+    {{end}}

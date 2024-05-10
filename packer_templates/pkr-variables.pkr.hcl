@@ -4,10 +4,12 @@ variable "os_name" {
   type        = string
   description = "OS Brand Name"
 }
+
 variable "os_version" {
   type        = string
   description = "OS version number"
 }
+
 variable "os_arch" {
   type = string
   validation {
@@ -19,6 +21,7 @@ variable "os_arch" {
 
 variable "http_proxy" {
   type        = string
+  # 默认从本地环境变量中读取, 需要注意变量应为HTTP_PROXY
   default     = env("http_proxy")
   description = "Http proxy url to connect to the internet"
 }
@@ -113,6 +116,24 @@ variable "build_timestamp" {
   description = "描述制品构建日期"
 }
 
+variable "artifactory_repo_url" {
+  type        = string
+  default     = null
+  description = "远程制品库"
+}
+
+variable "artifactory_user" {
+  type        = string
+  default     = env("artifactory_user")
+  description = "制品库用户"
+}
+
+variable "artifactory_password" {
+  type        = string
+  default     = env("artifactory_password")
+  description = "制品库密码"
+}
+
 /*----------- 定制相关变量--------------------*/
 variable "kubernetes_version" {
   type = string 
@@ -120,17 +141,75 @@ variable "kubernetes_version" {
   description = "定制镜像的kubernetes版本"
 }
 
-variable "is_kubernetes_master" {
+variable "helm_version" {
   type = string 
-  description = "当前镜像是否kubernetes主节点。默认为工作节点"
-  default     = env("is_kubernetes_master")
+  default = "3.13.2"
+  description = "定制镜像的helm版本"
 }
+
+variable "is_kubernetes_worker" {
+  type = string 
+  description = "当前镜像是否kubernetes工作节点。默认为主节点"
+  default     = env("is_kubernetes_worker")
+}
+
+// variable "kubernetes_cri" {
+//   type        = string
+//   default     = "docker"
+//   description = "用于告知kubernetes使用哪种cri,默认为docker"
+// }
+
 
 variable "go_version" {
   type = string 
   default = "1.19.13"
   description = "定制镜像的golang版本"
 }
+
+
+variable "database_type" {
+  type = string 
+  default = "postgresql"
+  description = "数据库"
+}
+
+variable "database_version" {
+  type = string 
+  default = "14"
+  description = "数据库版本"
+}
+
+variable "pulumi_version" {
+  type = string
+  default = "3.94.2"
+  description = "IaC工具pulumi版本"
+}
+
+variable "terraform_version" {
+  type = string 
+  default = "1.6.4"
+  description = "IaC工具terraform版本"
+}
+
+
+variable "harbor_domain" {
+  type = string 
+  default = "master.harbor.wang"
+  description = "harbor域名"
+}
+
+variable "harbor_version" {
+  type = string 
+  default = "2.9.1"
+  description = "harbor版本"
+}
+
+variable "has_docker" {
+  type        = bool
+  default     = false
+  description = "用于告知基础镜像是否包含docker"
+}
+
 
 /*----------- 操作系统通用变量 -------------- */
 
@@ -141,39 +220,48 @@ variable "boot_command" {
   default     = null
   description = "Commands to pass to gui session to initiate automated install"
 }
+
 variable "default_boot_wait" {
   type    = string
   default = null
 }
+
 variable "cd_files" {
   type    = list(string)
   default = null
 }
+
 variable "cpus" {
   type    = number
   default = 2
 }
+
 variable "communicator" {
   type    = string
   default = null
 }
+
 variable "disk_size" {
   type    = number
   default = 65536
 }
+
 variable "floppy_files" {
   type    = list(string)
   default = null
 }
+
 variable "headless" {
   type        = bool
   default     = false
   description = "Start GUI window to interact with VM. 启用时，将在后台安装系统"
 }
+
 variable "http_directory" {
   type    = string
   default = null
 }
+
 variable "iso_checksum" {
   type        = string
   default     = null
@@ -209,6 +297,7 @@ variable "shutdown_command" {
   type    = string
   default = null
 }
+
 variable "shutdown_timeout" {
   type    = string
   default = "15m"
@@ -229,6 +318,7 @@ variable "ssh_port" {
   type    = number
   default = 22
 }
+
 variable "ssh_timeout" {
   type    = string
   default = "30m"
@@ -244,6 +334,7 @@ variable "winrm_password" {
   default     = "vagrant"
   description = "如果是通过iso安装, 必须和预设账号密码保持一致"
 }
+
 variable "winrm_timeout" {
   type    = string
   default = "60m"
@@ -275,6 +366,12 @@ variable "custom_image_scripts" {
   type        = list(string)
   default     = null
   description = "构建自定义镜像运行的脚本"
+}
+
+variable "inline_custom_image_scripts" {
+  type        = list(string)
+  default     = null
+  description = "构建自定义镜像运行的内联脚本"
 }
 
 variable "gloden_image_scripts" {
@@ -361,6 +458,7 @@ variable "vmware_vmx_remove_ethernet_interfaces" {
   // 见https://developer.hashicorp.com/packer/integrations/hashicorp/vmware/latest/components/builder/vmx
   description = "是否在构建玩镜像后删除所有网卡"
 }
+
 variable "vmware_enable_usb" {
   type    = bool
   default = true
@@ -402,7 +500,6 @@ variable "vmware_vmdk_name" {
 variable "vmware_format" {
   type    = string
   default = null
-  //default = "ova"
   // 注意如果是ova必须安装ovftool工具,且ovftool程序在系统PATH路径上
   // format = "ova"
   description = "输出格式"
@@ -597,23 +694,28 @@ variable "hyperv_boot_wait" {
   type    = string
   default = null
 }
+
 variable "hyperv_enable_dynamic_memory" {
   type    = bool
   default = null
 }
+
 variable "hyperv_enable_secure_boot" {
   type    = bool
   default = null
 }
+
 variable "hyperv_generation" {
   type        = number
   default     = 2
   description = "Hyper-v generation version"
 }
+
 variable "hyperv_guest_additions_mode" {
   type    = string
   default = "disable"
 }
+
 variable "hyperv_switch_name" {
   type    = string
   default = "Default Switch"
@@ -628,39 +730,48 @@ variable "virtualbox_boot_wait" {
   type    = string
   default = null
 }
+
 variable "virtualbox_gfx_controller" {
   type    = string
   default = null
 }
+
 variable "virtualbox_gfx_vram_size" {
   type    = number
   default = null
 }
+
 variable "virtualbox_guest_additions_interface" {
   type    = string
   default = "sata"
 }
+
 variable "virtualbox_guest_additions_mode" {
   type    = string
   default = null
 }
+
 variable "virtualbox_guest_additions_path" {
   type    = string
   default = "VBoxGuestAdditions_{{ .Version }}.iso"
 }
+
 variable "virtualbox_guest_os_type" {
   type        = string
   default     = null
   description = "OS type for virtualization optimization"
 }
+
 variable "virtualbox_hard_drive_interface" {
   type    = string
   default = "sata"
 }
+
 variable "virtualbox_iso_interface" {
   type    = string
   default = "sata"
 }
+
 variable "virtualbox_manage" {
   type = list(list(string))
   default = [
@@ -674,6 +785,7 @@ variable "virtualbox_manage" {
     ]
   ]
 }
+
 variable "virtualbox_version_file" {
   type    = string
   default = ".vbox_version"
@@ -686,23 +798,28 @@ variable "parallels_boot_wait" {
   type    = string
   default = null
 }
+
 variable "parallels_guest_os_type" {
   type        = string
   default     = null
   description = "OS type for virtualization optimization"
 }
+
 variable "parallels_tools_flavor" {
   type    = string
   default = null
 }
+
 variable "parallels_tools_mode" {
   type    = string
   default = null
 }
+
 variable "parallels_prlctl" {
   type    = list(list(string))
   default = null
 }
+
 variable "parallels_prlctl_version_file" {
   type    = string
   default = ".prlctl_version"
@@ -714,22 +831,27 @@ variable "qemu_accelerator" {
   type    = string
   default = null
 }
+
 variable "qemu_binary" {
   type    = string
   default = null
 }
+
 variable "qemu_boot_wait" {
   type    = string
   default = null
 }
+
 variable "qemu_display" {
   type    = string
   default = "none"
 }
+
 variable "qemu_machine_type" {
   type    = string
   default = null
 }
+
 variable "qemu_args" {
   type    = list(list(string))
   default = null
