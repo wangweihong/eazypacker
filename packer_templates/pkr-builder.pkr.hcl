@@ -143,7 +143,7 @@ build {
     destination = "/tmp/"
   }
 
-  # Linux Shell scipts
+  # Linux Shell commands
   provisioner "shell" {
     environment_vars = concat(local.common_env, local.custom_env)
 
@@ -159,14 +159,13 @@ build {
     )
     //在执行脚本后，预期会断开与远程主机的连接
     expect_disconnect = true
-    //要执行的脚本列表,每个脚本都是相关联的，环境变量继承。
-    //通过concat连接通用脚本
+    //要执行的命令列表,每个命令都是相关联的，环境变量继承。
     inline = local.inline_custom_image_scripts
     //避免在windows执行
     except = var.is_windows ? local.custom_image_source_names : null
   }
 
-  # Linux Shell scipts
+  # Linux Shell scripts
   provisioner "shell" {
     environment_vars = concat(local.common_env, local.custom_env)
 
@@ -188,9 +187,6 @@ build {
     //避免在windows执行
     except = var.is_windows ? local.custom_image_source_names : null
   }
-
-
-
   # 下载构建服务器生成文件
   provisioner "file" {
     sources     = local.custom_image_post_download_source
