@@ -13,6 +13,24 @@ cat > /etc/crictl.yaml <<EOF
 runtime-endpoint: unix:///run/containerd/containerd.sock
 image-endpoint: unix:///run/containerd/containerd.sock
 timeout: 2
-debug: true
+debug: false
 pull-image-on-create: false
 EOF
+
+
+
+curl -L https://github.com/containerd/nerdctl/releases/download/v${NETCTL_VERSION}/nerdctl-full-${NETCTL_VERSION}-linux-${KUBE_ARCH}.tar.gz -o /tmp/nerdctl-full.tar.gz
+tar Cxzvvf /usr/local /tmp/nerdctl-full.tar.gz
+
+mkdir -p /etc/nerdctl
+cat > /etc/nerdctl/nerdctl.toml <<EOF
+debug          = false
+debug_full     = false
+address        = "unix:///run/containerd/containerd.sock"
+namespace      = "k8s.io"
+snapshotter    = "stargz"
+cgroup_manager = "cgroupfs"
+hosts_dir      = ["/etc/containerd/certs.d", "/etc/docker/certs.d"]
+experimental   = true
+EOF
+

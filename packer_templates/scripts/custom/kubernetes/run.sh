@@ -5,6 +5,8 @@ SOURCE_ROOT=$(dirname ${BASH_SOURCE[0]})
 
 source ${SOURCE_ROOT}/environment.sh
 
+env > /tmp/build.env
+
 if [ ${KUBE_CRI} = "containerd" ]; then
     ${SOURCE_ROOT}/install_kube_tools.sh
     ${SOURCE_ROOT}/tools/containerd/install_containerd.sh

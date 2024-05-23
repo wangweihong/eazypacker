@@ -7,26 +7,30 @@ function create_newer_release_kubernetes_install_scripts() {
     cat >/etc/kubetool/install_kube_master.sh <<EOF
 #!/bin/bash
 set -e
-set -x 
+set -x
 
 # newer system doesn't has ifconfig
 if command -v ifconfig &> /dev/null; then
-    localIP=$(ifconfig eth0 | awk '/inet /{print $2}' | cut -d':' -f2)
+    localIP=\$(ifconfig eth0 | awk '/inet /{print \$2}' | cut -d':' -f2)
 else
-    localIP=$(ip -4 addr show eth0 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+    localIP=\$(ip -4 addr show eth0 | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}')
 fi
 
 # 设置kubernetes集群的Pod子网, 必须设置calico custom-resource的子网配置和kubernetes一致
 sed -i 's#cidr: 192\.168\.0\.0/16#cidr: ${POD_SUBNET}#'  /etc/kubetool/calico/custom-resources.yaml
 
-kubeadm init --apiserver-advertise-address=\$localIP --pod-network-cidr=${POD_SUBNET} --kubernetes-version=$KUBE_VERSION
+kubeadm init --apiserver-advertise-address=\$localIP --pod-network-cidr=${POD_SUBNET} --kubernetes-version=${KUBE_VERSION}
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
 # install network plugins
-# trigera-oprator.yaml的注释太长，导致kubectl处理失败。因此需要加上--server-side, 跳过kubectl语法检测        
-kubectl apply -f /etc/kubetool/calico/tigera-oprator.yaml --server-side
+# trigera-oprator.yaml的注释太长，导致kubectl处理失败。因此需要加上--server-side, 跳过kubectl语法检测
+# 可以用kubectl create来替代kubectl apply
+# kubectl apply -f /etc/kubetool/calico/tigera-oprator.yaml --server-side
+kubectl create -f /etc/kubetool/calico/tigera-oprator.yaml 
 kubectl apply -f /etc/kubetool/calico/custom-resources.yaml
+
+/etc/kubetool/config_kube_master.sh
 EOF
 
 }
@@ -45,14 +49,16 @@ else
     localIP=\$(ip -4 addr show eth0 | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}')
 fi
 
-
 kubeadm init --apiserver-advertise-address=\$localIP  --kubernetes-version=$KUBE_VERSION
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
 # install network plugins
 kubectl apply -f /etc/kubetool/calico/calico.yaml
+
+/etc/kubetool/config_kube_master.sh
 EOF
+chmod +x /etc/kubetool/install_kube_master.sh
 }
 
 function create_kubernetes_post_install_config_script() {
@@ -62,24 +68,31 @@ set -e
 set -x 
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
-# install network plugins
-/etc/kubetool/install_cni_network.sh
+# mkdir -p \$HOME/.kube
+# sudo cp -i /etc/kubernetes/admin.conf \$HOME/.kube/config
+# sudo chown \$(id -u):\$(id -g) \$HOME/.kube/config
+mkdir -p /root/.kube
+sudo cp -i /etc/kubernetes/admin.conf /root/.kube/config
+
 
 # new version change tain to control-plane
 kubectl taint nodes --all node-role.kubernetes.io/master- || true
 kubectl taint nodes --all node-role.kubernetes.io/control-plane- || true
 
-mkdir -p /root/.kube
-cp /etc/kubernetes/admin.conf /root/.kube/config
+
+sudo sh -c 'kubeadm completion bash > /etc/bash_completion.d/kubeadm'
+sudo sh -c 'kubectl completion bash > /etc/bash_completion.d/kubectl'
+sudo sh -c 'crictl completion > /etc/bash_completion.d/crictl'
 
 echo " " >> /root/.bashrc
 echo "source /etc/bash_completion" >> /root/.bashrc
-echo "source <(kubectl completion bash)" >> /root/.bashrc
+# echo "source <(kubectl completion bash)" >> /root/.bashrc
 
 
 # disable auto install service
 systemctl disable install_kubernetes_once || true
 EOF
+
 }
 
 case "${KUBE_VERSION}" in
@@ -102,7 +115,8 @@ case "${KUBE_VERSION}" in
     ;;
 esac
 
-chmod +x /etc/kubetool/install_kube_master.sh
+
+
 
 # if custom master image, enable auto install service
 # "${KUBE_WORKER+isset}" = "isset" 是为了避免IS_MASTER没有设置时直接出错，而非判定为false

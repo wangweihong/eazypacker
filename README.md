@@ -90,10 +90,10 @@ export no_proxy="localhost,127.0.0.1,example.com"
 ```
 export HTTP_PROXY=xxxx
 export HTTPS_PROXY=xxxx
-PACKER_CACHE_DIR=/f/build_cache packer build  -on-error=ask -only=*.vmware-vmx.vm -var custom_purpose=kubernetes -var-file ./os_pkrvars/ubuntu/ubuntu-20.04-x86_64.pkrvars.hcl -var output_directory=/f/build   -var kubernetes_version=1.30.0 -var kubernetes_cri=containerd ./packer_templates/
+PACKER_CACHE_DIR=/f/build_cache packer build  -on-error=ask -only=*.vmware-vmx.vm -var custom_purpose=kubernetes -var-file ./os_pkrvars/ubuntu/ubuntu-20.04-x86_64.pkrvars.hcl -var output_directory=/f/build   -var kubernetes_version=1.30.0  ./packer_templates/
 ```
 
 * 构建基于docker的1.18.0版本的kubernetes
 ```
-PACKER_CACHE_DIR=/f/build_cache packer build  -on-error=ask -only=*.vmware-vmx.vm -var custom_purpose=kubernetes -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build  -var kubernetes_version=1.18.0 -var kubernetes_cri=docker -var vmware_format=ova ./packer_templates/ 
+PACKER_CACHE_DIR=/f/build_cache packer build  -on-error=ask -only=*.vmware-vmx.vm -var custom_purpose=kubernetes -var-file ./os_pkrvars/ubuntu/ubuntu-16.04-x86_64.pkrvars.hcl -var output_directory=/f/build  -var kubernetes_version=1.18.0 -var kubernetes_cri=docker  ./packer_templates/ 
 ```

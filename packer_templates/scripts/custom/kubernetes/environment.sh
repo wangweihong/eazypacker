@@ -30,7 +30,7 @@ case "${KUBE_VERSION}" in
     export CALICO_VERSION=${CALICO_VERSION:-v3.27.3}
     # crictl版本和kubernetes版本保持一致
     export CRICTL_VERSION=${KUBE_VERSION:-1.30.0}
-    export KUBE_CRI=${KUBE_CRI:containerd}
+    export KUBE_CRI=${KUBE_CRI:-containerd}
     ;;
 1.29.*)
     export CONTAINTERD_VERSION=${CONTAINTERD_VERSION:-1.7.11}
@@ -40,7 +40,7 @@ case "${KUBE_VERSION}" in
     export POD_SUBNET=${POD_SUBNET:-172.18.0.0/16}
     export CALICO_VERSION=${CALICO_VERSION:-v3.27.3}
     export CRICTL_VERSION=${KUBE_VERSION:-1.29.0}
-    export KUBE_CRI=${KUBE_CRI:containerd}
+    export KUBE_CRI=${KUBE_CRI:-containerd}
     ;;
 1.28.* | 1.27.* | 1.26.* | 1.25.*)
     export CONTAINTERD_VERSION=${CONTAINTERD_VERSION:-1.7.0}
@@ -50,11 +50,11 @@ case "${KUBE_VERSION}" in
     export POD_SUBNET=${POD_SUBNET:-172.18.0.0/16}
     export CALICO_VERSION=${CALICO_VERSION:-v3.27.3}
     export CRICTL_VERSION=${KUBE_VERSION:-1.28.0}
-    export KUBE_CRI=${KUBE_CRI:containerd}
+    export KUBE_CRI=${KUBE_CRI:-containerd}
     ;;
 *)
     export CALICO_VERSION=${CALICO_VERSION:-v3.14}
-    export KUBE_CRI=${KUBE_CRI:docker}
+    export KUBE_CRI=${KUBE_CRI:-docker}
     ;;
 esac
 
