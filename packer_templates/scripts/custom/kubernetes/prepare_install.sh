@@ -71,6 +71,14 @@ function pull_required_images() {
         ctr -n ${ns} images pull "$image"
       fi
     done
+
+    # 清理<none>标签的镜像
+    if command -v nerdctl; then
+      notag_images=$(nerdctl images --names | grep sha256 | awk '{print $1}')
+      for image in ${notag_images}; do
+        nerdctl rmi $image
+      done
+    fi
     ;;
 
   *)
@@ -165,7 +173,6 @@ EOF
 systemctl daemon-reload
 systemctl enable kubelet
 systemctl restart kubelet
-
 
 echo "config kubernetes prepare install, version:${KUBE_VERSION},arch:${KUBE_ARCH}"
 pull_required_images

@@ -23,6 +23,16 @@ function install_contained_manual() {
     containerd config default >/etc/containerd/config.toml
 }
 
+function clean_old_version() {
+    case "${OS_NAME}" in
+    ubuntu)
+        sudo apt-get remove docker docker-engine docker.io containerd runc || tru
+        ;;
+    *) ;;
+    esac
+    e
+}
+
 function install_tools_ubuntu() {
     sudo apt-get update
     sudo apt-get install -y apt-transport-https ca-certificates curl
@@ -36,7 +46,7 @@ function install_tools_package_management() {
         ;;
     *)
         echo "not support kubernetes install in os ${OS_NAME}, exit installation"
-        exit1
+        exit 1
         ;;
     esac
 }
@@ -54,10 +64,21 @@ if ! command -v curl >/dev/null 2>&1; then
     esac
 fi
 
+if command -v containerd >/dev/null 2>&1; then
+    exist_version=$(containerd --version | awk '{print $3}')
+    if [ ${exist_version} != ${CONTAINTERD_VERSION}]; then
+        clean_old_version
+    else
+        echo "Containerd version ${CONTAINTERD_VERSION} has exist, skip installing"
+
+        systemctl daemon-reload
+        systemctl enable containerd --now
+        exit 0
+    fi
+
+fi
+
 install_contained_manual
 
 systemctl daemon-reload
 systemctl enable containerd --now
-
-curl -L https://github.com/containerd/nerdctl/releases/download/v${NETCTL_VERSION}/nerdctl-full-${NETCTL_VERSION}-linux-${KUBE_ARCH}.tar.gz -o /tmp/nerdctl-full.tar.gz
-tar Cxzvvf /usr/local /tmp/nerdctl-full.tar.gz
