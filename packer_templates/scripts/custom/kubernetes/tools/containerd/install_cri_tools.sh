@@ -34,3 +34,6 @@ hosts_dir      = ["/etc/containerd/certs.d", "/etc/docker/certs.d"]
 experimental   = true
 EOF
 
+# TODO
+# 安装boltbrowser用于调试containerd /var/lib/containerd/io.containerd.metadata.v1.bolt/meta.db
+# go install github.com/br0xen/boltbrowser@latest
