@@ -2,7 +2,9 @@
 set -e
 set -x
 
-TOOL_DIR=/etc/cloudtool
+HARBOR_VERSION=${HARBOR_VERSION:-2.11.0}
+TOOL_DIR=${HARBOR_TOOL_DIR:-/etc/cloudtool}
+
 mkdir -p ${TOOL_DIR}
 mkdir -p ${TOOL_DIR}/harbor/certs
 mkdir -p ${TOOL_DIR}/harbor/data

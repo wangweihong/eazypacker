@@ -3,9 +3,7 @@
 set -e
 set -x
 
-if [  -n "${GO_VERSION}" ]; then
-    echo "GO_VERSION unset"
-fi
+GO_VERSION=${GO_VERSION:-1.19.13}
 
 binary=go${GO_VERSION}.linux-amd64
 
