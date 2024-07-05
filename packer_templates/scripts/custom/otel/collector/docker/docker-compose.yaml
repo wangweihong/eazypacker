@@ -1,0 +1,46 @@
+# file: docker-compose.yaml
+
+version: "3.3"
+services:
+  otel_collector:
+    image: otel/opentelemetry-collector-contrib:0.103.1
+    command: --config=/etc/otel-collector-config.yaml
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - 1888:1888 # pprof extension
+      - 8888:8888 # Prometheus metrics exposed by the Collector
+      - 8889:8889 # Prometheus exporter metrics
+      - 13133:13133 # health_check extension
+      - 4317:4317 # OTLP gRPC receiver
+      - 4318:4318 # OTLP http receiver
+      - 55679:55679 # zpages extension
+    depends_on:
+    #  - jaeger
+    #  - prometheus
+    networks:
+      - my_net
+
+    # Jaeger
+  # jaeger:
+  #   image: jaegertracing/all-in-one:1.22
+  #   ports:
+  #       - "14250:14250" # Collector gRPC
+  #       - "16686:16686" # Web HTTP
+  #   networks:
+  #       - my_net
+
+  # Prometheus
+  #  prometheus:
+  #image: prom/prometheus:v2.42.0
+  #command:
+  #    - --config.file=/etc/prometheus/prometheus-config.yaml
+  #volumes:
+  #    - ./confs/prometheus-config.yaml:/etc/prometheus/prometheus-config.yaml
+  #ports:
+  #   - "9090:9090"
+  #networks:
+  #    - my_net
+
+networks:
+  my_net:
