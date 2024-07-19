@@ -43,12 +43,10 @@ cat > /etc/otelcol-contrib/config.yaml << _EOF_
 receivers:
   otlp:
     protocols:
-      # 本地监听端口
       grpc:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
-  # 本地cpu等监控指标      
   hostmetrics:
     collection_interval: 30s
     scrapers:
@@ -71,30 +69,22 @@ receivers:
       scrape_configs:
         - job_name: otel-collector-binary
           static_configs:
-            - targets: ['localhost:8888']
+            - targets: ["localhost:8888"]
 
 # 处理器
 processors:
   # 批处理
   batch:
     send_batch_size: 1000
-    timeout: 10s
-  # 内存限制器  
+    timeout:
+      10s
+      # 内存限制器
   memory_limiter:
-    # Same as --mem-ballast-size-mib CLI argument
-    ballast_size_mib: 683
     # 80% of maximum memory up to 2G
     limit_mib: 1500
     # 25% of limit up to 2G
     spike_limit_mib: 512
     check_interval: 5s
-  # 排队重试[已废弃]
-  # 最大程度减少由于处理延迟或导出数据问题导致丢弃数据。  
-  # 
-  # queued_retry:
-  #   num_workers: 4
-  #   queue_size: 100
-  #   retry_on_failure: true
   # Ref: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/resourcedetectionprocessor/README.md
   # 资源检测
   resourcedetection:
@@ -110,20 +100,35 @@ extensions:
 
 # 导出器
 exporters:
-  otlp:
-    endpoint: "127.0.0.1:4317" 
-    tls:
-      insecure: true
-  logging:
-    # verbosity of the logging export: detailed, normal, basic
-    verbosity: detailed
+  # 其他的otel collector, 如原生otel collector或者signaz
+  # otlp:
+  #   endpoint: "127.0.0.1:4317"
+  #   tls:
+  #     insecure: true
+  #
+
+  # jaeger otel collector
+  # check https://opentelemetry.io/blog/2023/jaeger-exporter-collector-migration/
+  # otlp/jaeger:
+  #  endpoint: "127.0.0.1:4317"
+  #  tls:
+  #    insecure: true
+
+  debug:
+  # v0.86.0之后使用debug替代logging
+  #logging:
+  # # verbosity of the logging export: detailed, normal, basic
+  #  verbosity: detailed
+  #  loglevel: debug
 
 # 服务启用
 service:
   telemetry:
+    logs:
+      level: debug
     metrics:
       address: 0.0.0.0:8888
-  extensions: [health_check, zpages]    
+  extensions: [health_check, zpages]
   pipelines:
     metrics:
       receivers: [otlp]
@@ -136,9 +141,13 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp]
+      exporters:
+        # - otlp
+        # - otlp/jaeger
+        - debug
     logs:
       receivers: [otlp]
       processors: [batch]
       exporters: [otlp]
+
 _EOF_

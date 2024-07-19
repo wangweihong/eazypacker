@@ -1,13 +1,11 @@
-# v0.103.1版本配置
+# 接收器
 receivers:
   otlp:
     protocols:
-      # otel监听端口
       grpc:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
-  # 采集本地主机的性能指标(通过systemd运行时生效)
   hostmetrics:
     collection_interval: 30s
     scrapers:
@@ -31,31 +29,62 @@ receivers:
         - job_name: otel-collector-binary
           static_configs:
             - targets: ["localhost:8888"]
+
+# 处理器
 processors:
+  # 批处理
   batch:
     send_batch_size: 1000
-    timeout: 10s
+    timeout:
+      10s
+      # 内存限制器
+  memory_limiter:
+    # 80% of maximum memory up to 2G
+    limit_mib: 1500
+    # 25% of limit up to 2G
+    spike_limit_mib: 512
+    check_interval: 5s
   # Ref: https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/resourcedetectionprocessor/README.md
+  # 资源检测
   resourcedetection:
     detectors: [env, system] # include ec2 for AWS, gcp for GCP and azure for Azure.
     # Using OTEL_RESOURCE_ATTRIBUTES envvar, env detector adds custom labels.
     timeout: 2s
     system:
       hostname_sources: [os] # alternatively, use [dns,os] for setting FQDN as host.name and os as fallback
+
 extensions:
   health_check: {}
   zpages: {}
+
+# 导出器
 exporters:
-  # 导出到另一个支持otlp协议的后端
+  # 其他的otel collector, 如原生otel collector或者signaz
   # otlp:
-  # endpoint: "<IP of machine hosting SigNoz>:4317"
+  #   endpoint: "127.0.0.1:4317"
+  #   tls:
+  #     insecure: true
+  #
+
+  # jaeger otel collector
+  # check https://opentelemetry.io/blog/2023/jaeger-exporter-collector-migration/
+  # otlp/jaeger:
+  #  endpoint: "127.0.0.1:4317"
   #  tls:
-  #   insecure: true
-  logging:
-    # verbosity of the logging export: detailed, normal, basic
-    verbosity: normal
+  #    insecure: true
+
+  debug:
+  # v0.86.0之后使用debug替代logging
+  #logging:
+  # # verbosity of the logging export: detailed, normal, basic
+  #  verbosity: detailed
+  #  loglevel: debug
+
+# 服务启用
 service:
   telemetry:
+    logs:
+      level: debug
     metrics:
       address: 0.0.0.0:8888
   extensions: [health_check, zpages]
@@ -71,7 +100,10 @@ service:
     traces:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp]
+      exporters:
+        # - otlp
+        # - otlp/jaeger
+        - debug
     logs:
       receivers: [otlp]
       processors: [batch]

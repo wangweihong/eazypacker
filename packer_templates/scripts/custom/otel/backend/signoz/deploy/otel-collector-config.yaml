@@ -1,0 +1,390 @@
+receivers:
+  # 启动一个监听0.0.0.0:2255地址的tcp协议的日志收集器
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/tcplogreceiver
+  tcplog/docker:
+    listen_address: "0.0.0.0:2255"
+    operators:
+      - type: regex_parser
+        regex: '^<([0-9]+)>[0-9]+ (?P<timestamp>[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?([zZ]|([\+-])([01]\d|2[0-3]):?([0-5]\d)?)?) (?P<container_id>\S+) (?P<container_name>\S+) [0-9]+ - -( (?P<body>.*))?'
+        timestamp:
+          parse_from: attributes.timestamp
+          layout: "%Y-%m-%dT%H:%M:%S.%LZ"
+      - type: move
+        from: attributes["body"]
+        to: body
+      - type: remove
+        field: attributes.timestamp
+        # please remove names from below if you want to collect logs from them
+      - type: filter
+        id: signoz_logs_filter
+        expr: 'attributes.container_name matches "^signoz-(logspout|frontend|alertmanager|query-service|otel-collector|clickhouse|zookeeper)"'
+
+  # https://signoz.io/docs/userguide/send-logs-http/
+  httplogreceiver/json:
+    endpoint: 0.0.0.0:8082
+    source: json
+
+  # 接收rsyslog发送的日志
+  # https://signoz.io/docs/userguide/collecting_syslogs/
+  syslog:
+    tcp:
+      listen_address: "0.0.0.0:54527"
+    protocol: rfc3164
+    location: UTC
+    operators:
+      - type: move
+        from: attributes.message
+        to: body
+
+  # 从文件中读取日志
+  # https://signoz.io/docs/userguide/collect_logs_from_file/
+  # 注意事项: 如果otel collector是容器方式启动, 需要将日志路径挂载到otel collector容器中
+  ## 示例: 从容器文件中读取日志
+  filelog/containers:
+    include: ["/var/lib/docker/containers/*/*.log"]
+    #exclude: [ "/var/lib/docker/containers/*/ <container_id> .log" ] # 排除某个容器日志
+    start_at: end # start_at: end表示仅传输新的日志。如果要包含历史日志, 则改成beginning
+    include_file_path: true
+    include_file_name: false
+    operators:
+      - type: json_parser
+        id: parser-docker
+        output: extract_metadata_from_filepath
+        timestamp:
+          parse_from: attributes.time
+          layout: "%Y-%m-%dT%H:%M:%S.%LZ"
+      - type: regex_parser
+        id: extract_metadata_from_filepath
+        regex: "^.*containers/(?P<container_id>[^_]+)/.*logs"
+        parse_from: attributes["log.file.path"]
+        output: parse_body
+      - type: move
+        id: parse_body
+        from: attributes.log
+        to: body
+        output: add_source
+      - type: add
+        id: add_source
+        field: resource["source"]
+        value: "docker"
+      - type: remove
+        id: time
+        field: attributes.time
+
+  # 示例2：读取nginx的日志
+  filelog/nginx:
+    include: ["/var/log/nginx/*.log"]
+    start_at: begging
+    operators:
+      - type: json_parser
+        timestamp:
+          parse_from: attributes.time
+          layout: "%Y-%m-%d,%H:%M:%S %z"
+      - type: move
+        from: attribute.message
+        to: body
+      - type: remove
+        field: attributes.time
+
+  opencensus:
+    endpoint: 0.0.0.0:55678
+
+  # 接收openTelemetry协议的数据  
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+  jaeger:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:14250
+      thrift_http:
+        endpoint: 0.0.0.0:14268
+      # thrift_compact:
+      #   endpoint: 0.0.0.0:6831
+      # thrift_binary:
+      #   endpoint: 0.0.0.0:6832
+
+  # 简易的系统指标采集
+  hostmetrics:
+    collection_interval: 30s
+    scrapers:
+      cpu: {}
+      load: {}
+      memory: {}
+      disk: {}
+      filesystem: {}
+      network: {}
+
+  # 接收prometheus格式的指标数据
+  # 如采集node exporter或processs exporter的日志
+  prometheus:
+    config:
+      global:
+        scrape_interval: 60s
+      scrape_configs:
+        # otel-collector internal metrics
+        - job_name: otel-collector
+          scrape_interval: 5s
+          static_configs:
+            - targets:
+                - localhost:8888
+              labels:
+                job_name: otel-collector
+
+  # 接收fluent-bit的日志转发
+  # https://signoz.io/docs/userguide/fluentbit_to_signoz/
+  fluentforward:
+    endpoint: 0.0.0.0:24224
+
+# 处理器，串行操作。逐一对遥测数据继续处理
+# https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/transformprocessor/README.md
+processors:
+  batch:
+    send_batch_size: 10000
+    send_batch_max_size: 11000
+    timeout: 10s
+  signozspanmetrics/cumulative:
+    metrics_exporter: clickhousemetricswrite
+    metrics_flush_interval: 60s
+    latency_histogram_buckets:
+      [
+        100us,
+        1ms,
+        2ms,
+        6ms,
+        10ms,
+        50ms,
+        100ms,
+        250ms,
+        500ms,
+        1000ms,
+        1400ms,
+        2000ms,
+        5s,
+        10s,
+        20s,
+        40s,
+        60s,
+      ]
+    dimensions_cache_size: 100000
+    dimensions:
+      - name: service.namespace
+        default: default
+      - name: deployment.environment
+        default: default
+      # This is added to ensure the uniqueness of the timeseries
+      # Otherwise, identical timeseries produced by multiple replicas of
+      # collectors result in incorrect APM metrics
+      - name: signoz.collector.id
+      - name: service.version
+      - name: browser.platform
+      - name: browser.mobile
+      - name: k8s.cluster.name
+      - name: k8s.node.name
+      - name: k8s.namespace.name
+      - name: host.name
+      - name: host.type
+      - name: container.name
+  memory_limiter:
+    # 80% of maximum memory up to 2G
+    limit_mib: 1500
+    # 25% of limit up to 2G
+    spike_limit_mib: 512
+    check_interval: 5s
+  
+    # 50% of the maximum memory
+    limit_percentage: 50
+    # 20% of max memory usage spike expected
+    spike_limit_percentage: 20
+  queued_retry:
+    num_workers: 4
+    queue_size: 100
+    retry_on_failure: true
+
+  resourcedetection:
+    # Using OTEL_RESOURCE_ATTRIBUTES envvar, env detector adds custom labels.
+    detectors: [env, system] # include ec2 for AWS, gcp for GCP and azure for Azure.
+    timeout: 2s
+  signozspanmetrics/delta:
+    metrics_exporter: clickhousemetricswrite
+    metrics_flush_interval: 60s
+    latency_histogram_buckets:
+      [
+        100us,
+        1ms,
+        2ms,
+        6ms,
+        10ms,
+        50ms,
+        100ms,
+        250ms,
+        500ms,
+        1000ms,
+        1400ms,
+        2000ms,
+        5s,
+        10s,
+        20s,
+        40s,
+        60s,
+      ]
+    dimensions_cache_size: 100000
+    aggregation_temporality: AGGREGATION_TEMPORALITY_DELTA
+    enable_exp_histogram: true
+    dimensions:
+      - name: service.namespace
+        default: default
+      - name: deployment.environment
+        default: default
+      # This is added to ensure the uniqueness of the timeseries
+      # Otherwise, identical timeseries produced by multiple replicas of
+      # collectors result in incorrect APM metrics
+      - name: signoz.collector.id
+      - name: service.version
+      - name: browser.platform
+      - name: browser.mobile
+      - name: k8s.cluster.name
+      - name: k8s.node.name
+      - name: k8s.namespace.name
+      - name: host.name
+      - name: host.type
+      - name: container.name
+  ## 日志处理器
+  ### 丢掉指定级别的日志
+  filter/drop_logs_by_level:
+    logs:
+      log_record:
+        - 'IsMatch(severity_text, "(?i)\b(DEBUG)\b")'
+  ### 丢掉带有关键字的日志
+  filter/drop_logs_by_body_regex:
+    logs:
+      log_record:
+        - 'IsMatch(body, ".*password.*")'
+  ### 丢掉带有指定resource attributes的日志,如service.name,host.name,pod.name等
+  filter/drop_logs_by_label_values:
+    logs:
+      log_record:
+        - resource.attributes["k8s.pod.name"] == "test-pod"
+  ### 丢掉resource attribute符合某个正则的日志
+  filter/drop_logs_by_label_values:
+    logs:
+      log_record:
+        - resource.attributes["k8s.pod.name"] == "test-pod" 
+  ### 丢掉日志属性符合某个正则的日志
+  filter/drop_logs_by_label_values_regex:
+    logs:
+      log_record:
+        - IsMatch(attributes["http.method"], "GET|POST")
+
+  ## 转换器
+  transform/k8s_example:
+    error_mode: ignore
+    ## 追踪转换
+    trace_statements:
+      - context: resource
+        statements:
+          - keep_keys(attributes, ["service.name", "service.namespace", "cloud.region", "process.command_line"])
+          - replace_pattern(attributes["process.command_line"], "password\\=[^\\s]*(\\s?)", "password=***")
+          - limit(attributes, 100, [])
+          - truncate_all(attributes, 4096)
+      - context: span
+        statements:
+          - set(status.code, 1) where attributes["http.path"] == "/health"
+          - set(name, attributes["http.route"])
+          - replace_match(attributes["http.target"], "/user/*/list/*", "/user/{userId}/list/{listId}")
+          - limit(attributes, 100, [])
+          - truncate_all(attributes, 4096)
+    ## 指标转换
+    metric_statements:
+      - context: resource
+        statements:
+        - keep_keys(attributes, ["host.name"])
+        - truncate_all(attributes, 4096)
+      - context: metric
+        statements:
+          - set(description, "Sum") where type == "Sum"
+      - context: datapoint
+        statements:
+          - limit(attributes, 100, ["host.name"])
+          - truncate_all(attributes, 4096)
+          - convert_sum_to_gauge() where metric.name == "system.processes.count"
+          - convert_gauge_to_sum("cumulative", false) where metric.name == "prometheus_metric"
+    ## 日志转换      
+    log_statements:
+      - context: resource
+        statements:
+          - keep_keys(attributes, ["service.name", "service.namespace", "cloud.region"])
+      - context: log
+        statements:
+          - set(severity_text, "FAIL") where body == "request failed"
+          - replace_all_matches(attributes, "/user/*/list/*", "/user/{userId}/list/{listId}")
+          - replace_all_patterns(attributes, "value", "/account/\\d{4}", "/account/{accountId}")
+          - set(body, attributes["http.route"])
+  transform:
+    log_statements:
+      - context: log
+        statements: 
+          # 查找电子邮件, 并将用户部分替换成星号
+          - replace_pattern(body, "(\\w+)@(\\w+)\\.(\\w+)", "****@$2.$3")
+          # 查找匹配SSN(###-##-####)的模式，并将替换成星号
+          - replace_pattern(body, "\\d{3}-\\d{2}-\\d{4}", "***-**-****")
+          # 标志信用卡号模式, 并将所有的数字替换成星号
+          - replace_pattern(body, "\\d{4}-\\d{4}-\\d{4}-\\d{4}", "****-****-****-****")
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  zpages:
+    endpoint: 0.0.0.0:55679
+  pprof:
+    endpoint: 0.0.0.0:1777
+
+exporters:
+  clickhousetraces:
+    datasource: tcp://clickhouse:9000/signoz_traces
+    docker_multi_node_cluster: ${DOCKER_MULTI_NODE_CLUSTER}
+    low_cardinal_exception_grouping: ${LOW_CARDINAL_EXCEPTION_GROUPING}
+  clickhousemetricswrite:
+    endpoint: tcp://clickhouse:9000/signoz_metrics
+    resource_to_telemetry_conversion:
+      enabled: true
+  clickhousemetricswrite/prometheus:
+    endpoint: tcp://clickhouse:9000/signoz_metrics
+  clickhouselogsexporter:
+    dsn: tcp://clickhouse:9000/signoz_logs
+    docker_multi_node_cluster: ${DOCKER_MULTI_NODE_CLUSTER}
+    timeout: 10s
+  # logging: {}
+
+service:
+  telemetry:
+    metrics:
+      address: 0.0.0.0:8888
+  extensions:
+    - health_check
+    - zpages
+    - pprof
+  pipelines:
+    traces:
+      receivers: [jaeger, otlp]
+      processors: [signozspanmetrics/cumulative, signozspanmetrics/delta, batch]
+      exporters: [clickhousetraces]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [clickhousemetricswrite]
+    metrics/generic:
+      receivers: [hostmetrics]
+      processors: [resourcedetection, batch]
+      exporters: [clickhousemetricswrite]
+    metrics/prometheus:
+      receivers: [prometheus]
+      processors: [batch]
+      exporters: [clickhousemetricswrite/prometheus]
+    logs:
+      receivers: [otlp, tcplog/docker]
+      processors: [batch]
+      exporters: [clickhouselogsexporter]
