@@ -32,7 +32,7 @@ kubectl apply -f /etc/kubetool/calico/custom-resources.yaml
 
 /etc/kubetool/config_kube_master.sh
 EOF
-
+chmod +x /etc/kubetool/install_kube_master.sh
 }
 
 function create_legacy_release_kubernetes_install_script() {
@@ -92,7 +92,7 @@ echo "source /etc/bash_completion" >> /root/.bashrc
 # disable auto install service
 systemctl disable install_kubernetes_once || true
 EOF
-
+chmod +x /etc/kubetool/config_kube_master.sh
 }
 
 case "${KUBE_VERSION}" in
