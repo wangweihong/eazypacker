@@ -2,6 +2,14 @@
 set -e
 set -x
 
+KUBE_VERSION=${KUBE_VERSION:-1.30.0}
+KUBE_ARCH=${KUBE_ARCH:-amd64}
+NETCTL_VERSION=${NETCTL_VERSION:-2.0.0-beta.5}
+# crictl版本和kubernetes版本保持一致
+CRICTL_VERSION=${KUBE_VERSION:-1.30.0}
+
+
+
 # see https://github.com/kubernetes-sigs/cri-tools/tree/master
 # It's recommended to use the same cri-tools and Kubernetes minor version, 
 # because new features added to the Container Runtime Interface (CRI) may not be fully supported if they diverge.

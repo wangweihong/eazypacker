@@ -2,6 +2,12 @@
 set -e
 set -x
 
+
+OS_NAME=${OS_NAME:-"ubuntu"}
+OS_VERSION=${OS_VERSION:-"20.04"}
+KUBE_VERSION=${KUBE_VERSION:-1.30.0}
+KUBE_ARCH=${KUBE_ARCH:-amd64}
+
 function install_tools_ubuntu() {
 
     case "${KUBE_VERSION}" in
@@ -64,7 +70,9 @@ EOF
             exit 1
             ;;
         esac
-        #   16.04
+        
+        # 这种方式存在无法指定minor版本的问题。
+        # 如KUBE_VERISON为1.30.0, 实际下载的版本会根据kubernetes版本迭代而不同，如1.30.3
         majorVersion=$(echo ${KUBE_VERSION} | cut -d '.' -f 1,2)
         mkdir -p /etc/apt/keyrings
         curl -fsSL https://pkgs.k8s.io/core:/stable:/v${majorVersion}/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
@@ -120,5 +128,6 @@ EOF
 
 
 echo "install kubernetes tools, version:${KUBE_VERSION},arch:${KUBE_ARCH}"
-#install_tools_manual
-install_tools_package_management
+install_tools_manual
+# 不采用这种方式, 原因见install_tools_ubuntu说明
+#install_tools_package_management
