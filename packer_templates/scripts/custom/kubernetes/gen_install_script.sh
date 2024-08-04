@@ -2,6 +2,14 @@
 set -e
 set -x
 
+
+NET_IF="eth0"
+KUBE_VERSION=${KUBE_VERSION:-1.30.0}
+KUBE_WORKER=${KUBE_WORKER:false}
+POD_SUBNET=${POD_SUBNET:-172.18.0.0/16}
+CALICO_VERSION=${CALICO_VERSION:-v3.27.3}
+
+
 function create_newer_release_kubernetes_install_scripts() {
     # 'EOF'关闭转义
     cat >/etc/kubetool/install_kube_master.sh <<EOF
@@ -11,9 +19,9 @@ set -x
 
 # newer system doesn't has ifconfig
 if command -v ifconfig &> /dev/null; then
-    localIP=\$(ifconfig eth0 | awk '/inet /{print \$2}' | cut -d':' -f2)
+    localIP=\$(ifconfig ${NET_IF} | awk '/inet /{print \$2}' | cut -d':' -f2)
 else
-    localIP=\$(ip -4 addr show eth0 | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}')
+    localIP=\$(ip -4 addr show ${NET_IF} | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}')
 fi
 
 # 设置kubernetes集群的Pod子网, 必须设置calico custom-resource的子网配置和kubernetes一致

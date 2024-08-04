@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -ex
 
+KUBE_VERSION=${KUBE_VERSION:-1.30.0}
+KUBE_ARCH=${KUBE_ARCH:-amd64}
+
 apt install -y bash-completion
 sudo sh -c 'kubeadm completion bash > /etc/bash_completion.d/kubeadm'
 sudo sh -c 'kubectl completion bash > /etc/bash_completion.d/kubectl'

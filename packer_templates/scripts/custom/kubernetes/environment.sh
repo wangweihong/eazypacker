@@ -4,8 +4,9 @@ set -ex
 # 全局必配置变量
 export OS_ARCH=${OS_ARCH:-"x86_64"}
 export OS_NAME=${OS_NAME:-"ubuntu"}
+export OS_VERSION=${OS_VERSION:-"20.04"}
 export KUBE_VERSION=${KUBE_VERSION:-1.30.0}
-export KUBE_ARCH=${OS_ARCH:-amd64}
+export KUBE_ARCH=${KUBE_ARCH:-amd64}
 export KUBE_WORKER=${KUBE_WORKER:false}
 export HELM_VERSION=${HELM_VERSION:-3.13.2}
 export KUSTOMIZE_VERSION=${KUSTOMIZE_VERSION:-5.4.1}
