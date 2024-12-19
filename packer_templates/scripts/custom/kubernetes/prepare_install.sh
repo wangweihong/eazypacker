@@ -113,6 +113,10 @@ ubuntu)
   # for kubectl completion
   sudo apt install -y bash-completion
   ;;
+
+ rockylinux)
+  systemctl enable systemd-resolved.service
+ ;;
 *)
   echo "not support system tool install in os ${OS_NAME}, exit installation"
   exit 1
@@ -173,6 +177,7 @@ EOF
 systemctl daemon-reload
 systemctl enable kubelet
 systemctl restart kubelet
+systemctl enable --now systemd-resolved 
 
 echo "config kubernetes prepare install, version:${KUBE_VERSION},arch:${KUBE_ARCH}"
 pull_required_images

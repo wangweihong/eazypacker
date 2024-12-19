@@ -87,7 +87,7 @@ sudo sh -c 'crictl completion > /etc/bash_completion.d/crictl'
 echo " " >> /root/.bashrc
 echo "source /etc/bash_completion" >> /root/.bashrc
 # echo "source <(kubectl completion bash)" >> /root/.bashrc
-
+source /root/.bashrc
 
 # disable auto install service
 systemctl disable install_kubernetes_once || true
@@ -103,6 +103,9 @@ case "${KUBE_VERSION}" in
     mkdir -p /etc/kubetool/calico
     curl -L https://raw.githubusercontent.com/projectcalico/calico/${CALICO_VERSION}/manifests/tigera-operator.yaml -o /etc/kubetool/calico/tigera-oprator.yaml
     curl -L https://raw.githubusercontent.com/projectcalico/calico/${CALICO_VERSION}/manifests/custom-resources.yaml -o /etc/kubetool/calico/custom-resources.yaml
+    # TODO
+    # tigera operator存在问题: 当节点存在压力时, pod被驱逐
+    #  https://github.com/projectcalico/calico/issues/8110
     create_newer_release_kubernetes_install_scripts
     create_kubernetes_post_install_config_script
     ;;

@@ -30,6 +30,9 @@ ubuntu|debian)
 centos|rhel)
     yum -y install bash-completion
     ;;
+rocky)
+    dnf -y install bash-completion
+    ;;
  *)    
     echo "not support os name, skip bash-completion installation" 
     ;;

@@ -2,37 +2,45 @@
 set -e
 set -x
 
+KUBE_VERSION=${KUBE_VERSION:-1.30.0}
+KUBE_ARCH=${OS_ARCH:-amd64}
+
+function install_tools_ubuntu_noproxy() {
+    case "${KUBE_VERSION}" in
+    1.30.* | 1.29.* | 1.28.* | 1.27.* | 1.26.*)
+        sudo apt-get update
+        sudo apt-get install -y ca-certificates curl gnupg lsb-release
+        # containerd rely on kernel > 4.11
+        case "${OS_VERSION}" in
+        16.04)
+            echo "version:${KUBE_VERSION} no support in os ${OS_VERSION}, exit"
+            exit 1
+            ;;
+        esac
+        #   20.04
+        majorVersion=$(echo ${KUBE_VERSION} | cut -d '.' -f 1,2)
+        mkdir -p /etc/apt/keyrings
+        curl -s https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | sudo apt-key add -g
+        sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+        echo "deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+        sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list
+        sudo apt-get update
+        sudo apt-get install -y kubelet kubeadm kubectl
+        sudo apt-mark hold kubelet kubeadm kubectl
+        ;;
+    *)
+        echo "not support kubernetes version ${KUBE_VERSION}, exit installation"
+        exit 1
+        ;;
+    esac
+}
+
 function install_tools_ubuntu() {
 
     case "${KUBE_VERSION}" in
     1.18.*)
         sudo apt-get update
         sudo apt-get install -y curl
-        # 低于1.24版本的kube tools从2024/03/04已经无法通过apt/yum下载.
-        # 见 https://github.com/kubernetes/release/issues/3485
-        #    https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/change-package-repository/
-        # case "${OS_VERSION}" in
-        # 16.04)
-        #
-        #     mkdir -p /usr/share/keyrings
-        #     wget https://packages.cloud.google.com/apt/doc/apt-key.gpg -O /usr/share/keyrings/kubernetes-archive-keyring.gpg
-        #     echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-        #     ;;
-        # 20.04)
-        #     rm /etc/apt/trusted.gpg.d/kubernetes.gpg || true
-        #     curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /etc/apt/trusted.gpg.d/kubernetes.gpg
-        #     echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-        #     ;;
-        # *)
-        #     echo "not support os version ${OS_NAME}-${OS_VERSION}, exit  installation"
-        #     exit 1
-        #     ;;
-        # esac
-
-        # sudo apt-get update
-        # sudo apt-get install -y --allow-unauthenticated kubelet=${KUBE_VERSION}-00 kubeadm=${KUBE_VERSION} kubectl=${KUBE_VERSION}
-        # sudo apt-mark hold kubelet kubeadm kubectl
-        # ;;
         curl -L https://dl.k8s.io/release/v${KUBE_VERSION}/bin/linux/${KUBE_ARCH}/kubectl -o /usr/bin/kubectl
         chmod +x /usr/bin/kubectl
         curl -L https://dl.k8s.io/release/v${KUBE_VERSION}/bin/linux/${KUBE_ARCH}/kubelet -o /usr/bin/kubelet
@@ -82,11 +90,53 @@ EOF
     esac
 }
 
+function install_tools_rockylinux() {
+# # dnf install -y yum-utils
+# # yum-config-manager --add-repo https://mirrors.ustc.edu.cn/docker-ce/linux/centos/docker-ce.repo
+# # sed -i -e 's/download.docker.com/mirrors.ustc.edu.cn\/docker-ce/g' /etc/yum.repos.d/docker-ce.repo
+# # dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+# # cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+# [kubernetes]
+# name=Kubernetes
+# baseurl=https://mirrors.ustc.edu.cn/kubernetes/core:/stable:/v1.30/rpm/
+# enabled=1
+# gpgcheck=1
+# gpgkey=https://mirrors.ustc.edu.cn/kubernetes/core:/stable:/v1.30/rpm/repodata/repomd.xml.key
+# exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
+# EOF
+# # yum install kubeadm-1.30.0-150500.1.1.x86_64 kubelet-1.30.0-150500.1.1.x86_64 kubectl --disableexcludes=kubernetes
+    # 如果containernd版本不兼容，需要清理 
+    # 
+    case "${KUBE_VERSION}" in
+    1.30.*)
+        cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://mirrors.ustc.edu.cn/kubernetes/core:/stable:/v1.30/rpm
+enabled=1
+gpgcheck=1
+gpgkey=https://mirrors.ustc.edu.cn/kubernetes/core:/stable:/v1.30/rpm/repodata/repomd.xml.key
+exclude=kubelet kubeadm kubectl cri-tools kubernetes-cni
+EOF
+        dnf makecache
+        # 需要指定安装的架构
+        sudo dnf install -y kubeadm.`uname -m` kubectl.`uname -m` kubelet.`uname -m` --disableexcludes=kubernetes
+        ;;
+    *)
+        echo "not support kubernetes version ${KUBE_VERSION}, exit installation"
+        exit 1
+        ;;
+    esac
+}
+
 function install_tools_package_management() {
     case "${OS_NAME}" in
     ubuntu)
         install_tools_ubuntu
         ;;
+    rockylinux)
+        install_tools_manually_rockylinux
+        ;;   
     *)
         echo "not support kubernetes install in os ${OS_NAME}, exit installation"
         exit 1

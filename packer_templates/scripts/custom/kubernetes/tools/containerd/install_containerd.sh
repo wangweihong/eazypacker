@@ -2,6 +2,10 @@
 set -e
 set -x
 
+KUBE_VERSION=${KUBE_VERSION:-1.30.0}
+KUBE_ARCH=${OS_ARCH:-amd64}
+CONTAINTERD_VERSION=${CONTAINTERD_VERSION:-1.7.16}
+
 echo "install kubernetes release cri containerd, version:${KUBE_VERSION},arch:${KUBE_ARCH}"
 
 function install_contained_manual() {
@@ -28,6 +32,9 @@ function clean_old_version() {
     ubuntu)
         sudo apt-get remove docker docker-engine docker.io containerd runc || tru
         ;;
+    rockylinux)
+        dnf remove containerd containernetworking-plugins
+        ;;
     *) ;;
     esac
     e
@@ -35,14 +42,30 @@ function clean_old_version() {
 
 function install_tools_ubuntu() {
     sudo apt-get update
-    sudo apt-get install -y apt-transport-https ca-certificates curl
+    sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+    mkdir -p /etc/apt/keyrings
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+$(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    apt update
+    apt install containerd.io=${CONTAINTERD_VERSION}-1
+}
 
+function install_tools_rockylinux() {
+    dnf install -y yum-utils
+    yum-config-manager --add-repo https://mirrors.ustc.edu.cn/docker-ce/linux/centos/docker-ce.repo
+    sed -i -e 's/download.docker.com/mirrors.ustc.edu.cn\/docker-ce/g' /etc/yum.repos.d/docker-ce.repo
+    dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 }
 
 function install_tools_package_management() {
     case "${OS_NAME}" in
     ubuntu)
         install_tools_ubuntu
+        ;;
+    rockylinux)
+        install_tools_rockylinux
         ;;
     *)
         echo "not support kubernetes install in os ${OS_NAME}, exit installation"

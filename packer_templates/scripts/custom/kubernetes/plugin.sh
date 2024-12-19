@@ -5,6 +5,8 @@ apt install -y bash-completion
 sudo sh -c 'kubeadm completion bash > /etc/bash_completion.d/kubeadm'
 sudo sh -c 'kubectl completion bash > /etc/bash_completion.d/kubectl'
 sudo sh -c 'crictl completion > /etc/bash_completion.d/crictl'
+sudo sh -c 'nerdctl completion bash > /etc/bash_completion.d/nerdctl'
+sudo sh -c 'helm completion bash> /etc/bash_completion.d/helm'
 
 echo " " >> /root/.bashrc
 echo "source /etc/bash_completion" >> /root/.bashrc
